@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PA314 Exam Lab</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;500;600&family=Cairo:wght@500;700&family=Amiri:wght@400;700&family=Quicksand:wght@500;600;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<script>
+  if (window.tailwind) tailwind.config = { theme: { extend: { fontFamily: {
+    display: ['"Space Grotesk"', 'sans-serif'], mono: ['"JetBrains Mono"', 'monospace'],
+    sans: ['Inter', 'system-ui', 'sans-serif'], ar: ['Cairo', 'sans-serif'] } } } };
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  /* ===== THEMES: default (lab) · boy · girl — switched live via <body data-theme> ===== */
+  body {   /* default (no gender chosen): neutral gray */
+    --bg:#1e1f22; --panel:#26272b; --panel2:#2d2e33; --line:#3d3e44; --text:#ececee; --muted:#9a9ba1;
+    --acc:#c9cace; --accInk:#1e1f22; --amber:#a8a9ae; --amberInk:#1e1f22; --rose:#d98a8a; --violet:#8e8f95;
+    --accSoft:rgba(255,255,255,.06); --accLine:rgba(255,255,255,.25); --ring:rgba(255,255,255,.15);
+    --okBg:rgba(127,191,152,.10); --okLine:#7fbf98; --okText:#a7d7b8; --badBg:rgba(217,138,138,.09); --badLine:rgba(217,138,138,.6); --badText:#e5a9a9;
+    --soft:#c9cace; --inputBg:#1a1b1e; --ph:#6b6c72; --header:rgba(30,31,34,.86); --overlay:rgba(0,0,0,.6);
+    --dis:#3d3e44; --disInk:#77787e; --grid:rgba(255,255,255,.03); --glow1:rgba(255,255,255,.05); --glow2:rgba(255,255,255,.035);
+    --remBg:linear-gradient(90deg,rgba(255,255,255,.07),rgba(255,255,255,.03)); --bankTag:#c4c5ca; --lecTag:#a9aab0; --r:18px;
+    --cA:#ececee; --c1:#d4d4d8; --c2:#bdbdc2; --c3:#b8b9be; --c4:#a6a7ad; --c5:#c7c7cc; --c6:#b0b1b6; --c7:#9d9ea4;
+  }
+  body[data-theme="boy"] {
+    --bg:#060a13; --panel:#0c1322; --panel2:#101a2e; --line:#1d2a45; --text:#e6edf7; --muted:#7f8daa;
+    --acc:#3b82f6; --accInk:#ffffff; --amber:#f59e0b; --amberInk:#1f1300; --rose:#ef4444; --violet:#22d3ee;
+    --accSoft:rgba(59,130,246,.10); --accLine:rgba(59,130,246,.45); --ring:rgba(59,130,246,.25);
+    --inputBg:#0a1120; --ph:#56627e; --header:rgba(6,10,19,.85); --dis:#1d2a45; --disInk:#56627e;
+    --grid:rgba(96,165,250,.05); --glow1:rgba(59,130,246,.16); --glow2:rgba(34,211,238,.10);
+    --remBg:linear-gradient(90deg,rgba(59,130,246,.14),rgba(34,211,238,.10)); --bankTag:#93c5fd; --lecTag:#67e8f9; --r:12px;
+    --cA:#e6edf7; --c1:#ef4444; --c2:#f59e0b; --c3:#f472b6; --c4:#22d3ee; --c5:#22c55e; --c6:#3b82f6; --c7:#8b5cf6;
+  }
+  body[data-theme="girl"] {
+    --bg:#fbf5f8; --panel:#ffffff; --panel2:#fdf1f6; --line:#efd9e3; --text:#4b2f3e; --muted:#9a7b8b;
+    --acc:#d47fa6; --accInk:#ffffff; --amber:#e3a0b2; --amberInk:#ffffff; --rose:#d16d7e; --violet:#b69ad8;
+    --accSoft:rgba(212,127,166,.10); --accLine:rgba(212,127,166,.45); --ring:rgba(212,127,166,.20);
+    --okBg:rgba(124,184,150,.14); --okLine:#8cc5a4; --okText:#3f8a63; --badBg:rgba(209,109,126,.08); --badLine:#e2a1ad; --badText:#b5546a;
+    --soft:#6b5160; --inputBg:#ffffff; --ph:#c9b0bd; --header:rgba(251,245,248,.86); --overlay:rgba(75,47,62,.35);
+    --dis:#f1e4ea; --disInk:#c0a6b3; --grid:rgba(212,127,166,.07); --glow1:rgba(232,160,191,.30); --glow2:rgba(182,154,216,.28);
+    --remBg:linear-gradient(90deg,rgba(232,160,191,.22),rgba(182,154,216,.22)); --bankTag:#8f80cf; --lecTag:#c4669a; --r:24px;
+    --cA:#8f6f80; --c1:#d16d7e; --c2:#e39bb6; --c3:#c7a17a; --c4:#b69ad8; --c5:#c98bb9; --c6:#9d8fd6; --c7:#e2a08f;
+  }
+  body[data-theme="girl"] .font-display, body[data-theme="girl"] .tile .sym, body[data-theme="girl"] .btn { font-family: 'Quicksand', sans-serif; }
+  body[data-theme="boy"] .font-display, body[data-theme="boy"] .tile .sym, body[data-theme="boy"] .btn { font-family: 'Rajdhani', sans-serif; letter-spacing: .02em; }
+  body[data-theme="girl"] .panel, body[data-theme="girl"] .panel2 { box-shadow: 0 8px 30px -14px rgba(196,102,154,.25); }
+  body { transition: background-color .5s ease, color .5s ease; }
+  .panel, .panel2, .tile, .chip, .opt, input, textarea, header { transition: background-color .5s ease, border-color .5s ease, color .5s ease; }
+  /* decorations */
+  #decor { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  #decor span { position: absolute; animation: drift linear infinite; user-select: none; }
+  /* ===== Islamic / spiritual look for the du'a screen ===== */
+  body.islamic {
+    background-image:
+      radial-gradient(700px 420px at 50% 18%, rgba(200,164,92,.22), transparent 65%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23c8a45c' stroke-opacity='.22' stroke-width='1.1'%3E%3Crect x='24' y='24' width='36' height='36'/%3E%3Crect x='24' y='24' width='36' height='36' transform='rotate(45 42 42)'/%3E%3Ccircle cx='42' cy='42' r='7'/%3E%3Cpath d='M0 42h12M72 42h12M42 0v12M42 72v12'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: auto, 84px 84px;
+  }
+  .mihrab { position: relative; text-align: center; padding: 64px 26px 34px; background: var(--panel);
+            border: 2px solid rgba(200,164,92,.65); border-radius: 260px 260px 26px 26px / 170px 170px 26px 26px;
+            box-shadow: 0 0 0 7px rgba(200,164,92,.10), 0 30px 80px -30px rgba(200,164,92,.45); }
+  .mihrab::before { content: ''; position: absolute; inset: 10px; border: 1px solid rgba(200,164,92,.35);
+            border-radius: 250px 250px 18px 18px / 162px 162px 18px 18px; pointer-events: none; }
+  .quran { font-family: 'Amiri', 'Cairo', serif; direction: rtl; font-size: clamp(22px, 4.6vw, 31px); line-height: 2.25; color: var(--text); }
+  .ayah-n { display: inline-grid; place-items: center; width: 1.55em; height: 1.55em; margin: 0 .25em; font-size: .62em; vertical-align: middle;
+            border: 1.5px solid #c8a45c; border-radius: 50%; color: #c8a45c; font-family: 'Amiri', serif; line-height: 1; }
+  .dua-text { font-family: 'Amiri', 'Cairo', serif; direction: rtl; font-size: clamp(20px, 4vw, 27px); line-height: 2.1; }
+  .gold { color: #c8a45c; }
+  .orn { color: #c8a45c; font-size: 26px; letter-spacing: 14px; opacity: .9; }
+  .bism-btn { font-family: 'Amiri', 'Cairo', serif; font-size: 24px; font-weight: 700; padding: 12px 34px; border-radius: 999px;
+              background: linear-gradient(135deg, #d9b86c, #b98f3e); color: #2a1d05; box-shadow: 0 12px 30px -10px rgba(200,164,92,.7); transition: transform .15s; }
+  .bism-btn:hover { transform: translateY(-2px) scale(1.02); }
+  @keyframes drift { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-26px) rotate(12deg); } 100% { transform: translateY(0) rotate(0deg); } }
+  .gchip { border: 1.5px solid var(--line); border-radius: 999px; padding: 9px 18px; background: var(--panel2); font-weight: 600; transition: all .2s; }
+  .gchip:hover { border-color: var(--acc); }
+  .gchip.on { background: var(--acc); color: var(--accInk); border-color: var(--acc); }
+  html, body { background: var(--bg); color: var(--text); }
+  body {
+    background-image:
+      radial-gradient(900px 500px at 85% -10%, var(--glow1), transparent 60%),
+      radial-gradient(700px 400px at -10% 110%, var(--glow2), transparent 60%),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: auto, auto, 32px 32px, 32px 32px;
+    background-attachment: fixed;
+  }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); }
+  .panel2 { background: var(--panel2); border: 1px solid var(--line); border-radius: 14px; }
+  .muted { color: var(--muted); }
+  .ar { font-family: 'Cairo', sans-serif; direction: rtl; unicode-bidi: plaintext; }
+  .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  input, textarea { background: var(--inputBg); border: 1px solid var(--line); color: var(--text); border-radius: 12px; }
+  input:focus, textarea:focus { outline: none; border-color: var(--acc); box-shadow: 0 0 0 3px var(--ring); }
+  input::placeholder, textarea::placeholder { color: var(--ph); }
+
+  /* element tiles */
+  .tile { position: relative; border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px 12px; background: var(--panel2);
+          transition: transform .15s, border-color .15s, box-shadow .15s; text-align: left; cursor: pointer; min-height: 112px; }
+  .tile:hover { transform: translateY(-2px); }
+  .tile .num { font-family: 'JetBrains Mono', monospace; font-size: 12px; opacity: .8; }
+  .tile .cnt { position: absolute; top: 9px; right: 11px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .tile .sym { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 32px; line-height: 1.1; margin-top: 2px; }
+  .tile .nm { font-size: 12px; color: var(--muted); line-height: 1.25; margin-top: 2px; }
+  .tile.on { border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent), inset 0 0 40px color-mix(in srgb, var(--c) 10%, transparent); }
+  .tile .sym { color: var(--c); }
+
+  .chip { font-family: 'JetBrains Mono', monospace; border: 1.5px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: 14px; background: var(--panel2); transition: all .15s; }
+  .chip:hover:not(:disabled) { border-color: var(--acc); }
+  .chip.on { background: var(--acc); color: var(--accInk); border-color: var(--acc); font-weight: 700; }
+  .chip:disabled { opacity: .35; cursor: not-allowed; }
+
+  .btn { font-family: 'Space Grotesk', sans-serif; font-weight: 600; border-radius: 12px; padding: 12px 22px; transition: all .15s; }
+  .btn-acc { background: var(--acc); color: var(--accInk); } .btn-acc:hover { filter: brightness(1.08); }
+  .btn-acc:disabled { background: var(--dis); color: var(--disInk); cursor: not-allowed; }
+  .btn-ghost { border: 1.5px solid var(--line); color: var(--text); } .btn-ghost:hover { border-color: var(--acc); }
+  .btn-amber { background: var(--amber); color: var(--amberInk); }
+
+  .opt { width: 100%; text-align: left; border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; background: var(--panel2); transition: all .15s; }
+  .opt:hover:not(:disabled) { border-color: var(--acc); }
+  .opt .k { font-family: 'JetBrains Mono', monospace; width: 28px; height: 28px; flex-shrink: 0; display: grid; place-items: center; border-radius: 8px; background: var(--inputBg); border: 1px solid var(--line); font-size: 13px; }
+  .opt.sel { border-color: var(--acc); background: var(--accSoft); }
+  .opt.ok  { border-color: var(--okLine); background: var(--okBg); }
+  .opt.bad { border-color: var(--badLine); background: var(--badBg); }
+
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .fade { animation: fade .28s ease; } @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .hidden-view { display: none !important; }
+  #toast { transition: all .3s ease; }
+  .pop { animation: pop .4s ease; } @keyframes pop { 0% { transform: scale(.85); opacity: 0 } 60% { transform: scale(1.04) } 100% { transform: scale(1); opacity: 1 } }
+  .confetti { position: fixed; top: -40px; font-size: 26px; animation: fall linear forwards; pointer-events: none; z-index: 60; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(540deg); opacity: .9; } }
+  table td, table th { border-color: var(--line); }
+</style>
+</head>
+<body class="font-sans min-h-screen">
+<div id="decor" aria-hidden="true"></div>
+
+<!-- ================= HEADER ================= -->
+<header class="sticky top-0 z-30 backdrop-blur border-b" style="background:var(--header);border-color:var(--line)">
+  <div class="max-w-5xl mx-auto px-4 h-16 flex items-center gap-3">
+    <div id="logo" class="select-none w-11 h-11 rounded-lg grid place-items-center relative" style="background:var(--panel2);border:1.5px solid var(--acc)">
+      <span class="absolute top-0.5 left-1 font-mono text-[9px]" style="color:var(--acc)">314</span>
+      <span class="font-display font-bold text-lg" style="color:var(--acc)">IA</span>
+    </div>
+    <div>
+      <div class="font-display font-bold leading-tight">PA314 Exam Lab</div>
+      <div class="text-xs muted leading-tight">Instrumental Analysis</div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-8 relative z-10">
+
+<!-- ================= SETUP (one screen) ================= -->
+<section id="view-setup" class="fade">
+  <div class="mb-6">
+    <div class="label mb-2">Formative MCQ &amp; short-answer practice</div>
+    <h1 class="font-display text-3xl sm:text-4xl font-bold" id="hello">Welcome to the lab 👋</h1>
+    <p class="muted mt-2 max-w-2xl">Questions come from the course question bank plus new questions built from lecture details. Instant feedback after every answer.</p>
+  </div>
+
+  <div class="panel p-5 sm:p-7 grid gap-7">
+    <!-- name -->
+    <div>
+      <label for="studentName" class="label block mb-2">Your name <span style="color:var(--acc)">(optional)</span></label>
+      <input id="studentName" type="text" maxlength="30" autocomplete="given-name" placeholder="Name" class="w-full sm:max-w-sm px-4 py-3 text-lg">
+      <p id="nameHint" class="ar text-sm mt-2 muted text-right sm:text-right">✍️ اختياري — لو كتبت اسمك هنناديك بيه في رسايل الترحيب والفيدباك بعد كل سؤال وفي النتيجة النهائية.</p>
+    </div>
+
+    <!-- gender -->
+    <div>
+      <div class="label mb-3">Gender <span style="color:var(--acc)">(optional)</span></div>
+      <div class="flex flex-wrap gap-2" id="genderChips">
+        <button type="button" class="gchip ar" data-gender="boy">👦 ولد</button>
+        <button type="button" class="gchip ar" data-gender="girl">👧 بنت</button>
+        <button type="button" class="gchip ar" data-gender="">⚗️ من غير اختيار</button>
+      </div>
+      <p class="ar text-sm mt-2 muted text-right sm:text-right">🎨 اختياري — لو اخترت، شكل الموقع وألوانه وطريقة الكلام والتحفيز هيتغيّروا ليك في نفس اللحظة. لو مخترتش، هيفضل الشكل الأساسي.</p>
+    </div>
+
+    <!-- mode -->
+    <div>
+      <div class="label mb-3">Mode</div>
+      <div class="grid sm:grid-cols-3 gap-3" id="modeChoices">
+        <button type="button" class="tile" style="--c:var(--acc);min-height:auto" data-mode="custom">
+          <div class="font-semibold">🧪 Custom practice</div>
+          <div class="nm mt-1">Choose the lecture, number of questions and difficulty</div>
+        </button>
+        <button type="button" class="tile" style="--c:var(--acc);min-height:auto" data-mode="essay">
+          <div class="font-semibold">✍️ Short-answer only</div>
+          <div class="nm mt-1">Only the bank's short-answer (essay) questions</div>
+        </button>
+        <button type="button" class="tile" style="--c:var(--acc);min-height:auto" data-mode="sim">
+          <div class="font-semibold">🎓 Exam simulation</div>
+          <div class="nm mt-1">32 random MCQs + 2 random short-answer, all from the bank</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- scope -->
+    <div id="secScope">
+      <div class="label mb-3">Choose the lecture</div>
+      <div id="scopeTiles" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+    </div>
+
+    <!-- source -->
+    <div id="secSource">
+      <div class="label mb-3">Question source</div>
+      <div class="grid sm:grid-cols-2 gap-3" id="sourceChoices">
+        <button type="button" class="tile" style="--c:var(--acc);min-height:auto" data-source="mix">
+          <div class="font-semibold">📘 + 🧪 Bank + lecture questions</div>
+          <div class="nm mt-1">85–90% from the question bank, the rest new questions from lecture details</div>
+        </button>
+        <button type="button" class="tile" style="--c:var(--acc);min-height:auto" data-source="bank">
+          <div class="font-semibold">📘 Question bank only</div>
+          <div class="nm mt-1">Every question comes from the official bank</div>
+        </button>
+      </div>
+      <p class="text-xs muted mt-2">Short-answer questions always come from the bank.</p>
+    </div>
+
+    <!-- count -->
+    <div id="secCount">
+      <div class="label mb-3">Number of questions</div>
+      <div class="flex flex-wrap gap-2 items-center" id="countChips"></div>
+      <div class="flex items-center gap-3 mt-3">
+        <input id="customCount" type="number" inputmode="numeric" min="1" step="1" placeholder="Type a number" class="w-40 px-3 py-2">
+        <span class="text-sm muted" id="customMax"></span>
+      </div>
+      <p id="countErr" class="text-sm mt-2 hidden" style="color:var(--rose)"></p>
+    </div>
+
+    <!-- difficulty -->
+    <div id="secDiff">
+      <div class="label mb-3">Difficulty</div>
+      <div class="flex flex-wrap gap-2" id="diffChips"></div>
+      <p class="text-xs muted mt-2">If a level runs short for the chosen lecture, the exam is topped up from the nearest level.</p>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-4 pt-5 border-t" style="border-color:var(--line)">
+      <div class="text-sm muted" id="summary"></div>
+      <button id="startBtn" class="btn btn-acc text-lg px-8">Start exam →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DU'A BEFORE THE EXAM ================= -->
+<section id="view-dua" class="hidden-view">
+  <div class="max-w-2xl mx-auto pt-2 pb-6">
+    <div class="mihrab pop">
+      <div class="orn mb-2">۞ ✦ ۞</div>
+      <div class="ar gold font-bold text-lg mb-5">دعاء قبل الامتحان</div>
+
+      <div class="quran">﴿رَبِّ اشْرَحْ لِي صَدْرِي <span class="ayah-n">٢٥</span> وَيَسِّرْ لِي أَمْرِي <span class="ayah-n">٢٦</span> وَاحْلُلْ عُقْدَةً مِّن لِّسَانِي <span class="ayah-n">٢٧</span> يَفْقَهُوا قَوْلِي <span class="ayah-n">٢٨</span>﴾</div>
+      <div class="ar text-sm muted mt-1">[سورة طه: ٢٥–٢٨]</div>
+
+      <div class="orn my-6">✦ ۞ ✦</div>
+
+      <div class="dua-text">اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا</div>
+      <div class="ar text-sm muted mt-1">رواه ابن حبان وابن السني عن أنس رضي الله عنه</div>
+
+      <div class="mt-9"><button id="bismillahBtn" class="bism-btn">بسم الله نبدأ؟</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EXAM ================= -->
+<section id="view-exam" class="hidden-view">
+  <div class="max-w-3xl mx-auto">
+    <div class="grid grid-cols-4 gap-2 sm:gap-3 mb-3">
+      <div class="panel2 px-3 py-2"><div class="label">Question</div><div class="font-mono text-xl sm:text-2xl font-bold"><span id="qNum">1</span><span class="muted text-base">/<span id="qTotal">10</span></span></div></div>
+      <div class="panel2 px-3 py-2"><div class="label">Score</div><div class="font-mono text-xl sm:text-2xl font-bold" style="color:var(--acc)" id="liveScore">0</div></div>
+      <div class="panel2 px-3 py-2"><div class="label">Streak</div><div class="font-mono text-xl sm:text-2xl font-bold" style="color:var(--amber)"><span id="streak">0</span><span class="text-base"> 🔥</span></div></div>
+      <div class="panel2 px-3 py-2"><div class="label">Time</div><div class="font-mono text-xl sm:text-2xl font-bold" id="timer">00:00</div></div>
+    </div>
+    <div class="h-1.5 rounded-full overflow-hidden mb-4" style="background:var(--line)"><div id="progressBar" class="h-full transition-all duration-300" style="width:0%;background:linear-gradient(90deg,var(--acc),var(--violet))"></div></div>
+
+    <div id="reminder" class="hidden mb-4 rounded-2xl px-5 py-4 flex items-center justify-between gap-3 fade" style="background:var(--remBg);border:1px solid var(--accLine)">
+      <div class="ar text-lg font-bold flex-1 text-center" id="reminderText"></div>
+      <button id="reminderX" class="muted text-xl leading-none px-2" aria-label="Dismiss">×</button>
+    </div>
+
+    <div class="panel p-5 sm:p-7 fade" id="qCard">
+      <div class="flex flex-wrap gap-2 mb-4" id="qTags"></div>
+      <h2 id="qText" class="text-lg sm:text-xl font-semibold leading-relaxed mb-5"></h2>
+
+      <div id="qOptions" class="grid gap-3"></div>
+
+      <div id="essayBox" class="hidden">
+        <textarea id="essayInput" rows="4" class="w-full px-4 py-3" placeholder="Write your answer here (optional) — then reveal the model answer."></textarea>
+        <div id="modelBox" class="hidden mt-4 rounded-xl p-4" style="background:var(--accSoft);border:1px solid var(--accLine)">
+          <div class="label mb-2" style="color:var(--acc)">Model answer</div>
+          <ul id="modelList" class="grid gap-1 font-medium"></ul>
+        </div>
+        <div id="selfMark" class="hidden mt-4">
+          <div class="ar text-center font-bold mb-3" id="selfPrompt">قارن إجابتك بالإجابة النموذجية… الجواب صح؟</div>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="markRight" class="btn ar" style="background:var(--okBg);border:1.5px solid var(--okLine);color:var(--okText)">✅ الجواب صح</button>
+            <button id="markWrong" class="btn ar" style="background:var(--badBg);border:1.5px solid var(--badLine);color:var(--badText)">مجبتهاش المرادي 😅</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="feedback" class="hidden mt-5 rounded-xl p-4 text-sm leading-relaxed"></div>
+
+      <div class="flex justify-end mt-6 gap-3">
+        <button id="revealBtn" class="hidden btn btn-ghost">Show model answer</button>
+        <button id="submitBtn" disabled class="btn btn-acc">Submit answer</button>
+        <button id="nextBtn" class="hidden btn btn-acc">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RESULT ================= -->
+<section id="view-result" class="hidden-view">
+  <div class="max-w-3xl mx-auto">
+    <div class="panel p-6 sm:p-10 text-center pop">
+      <div class="label" id="resLabel">Your score</div>
+      <div class="font-mono text-6xl sm:text-7xl font-bold mt-3" id="resPct">0%</div>
+      <div class="muted mt-1 font-mono" id="resScore"></div>
+      <div class="ar text-xl sm:text-2xl font-bold mt-5 leading-relaxed" id="resMsg"></div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-8 text-left">
+        <div class="panel2 p-3"><div class="label">Lecture</div><div class="font-semibold text-sm mt-1" id="resScope"></div></div>
+        <div class="panel2 p-3"><div class="label">Difficulty</div><div class="font-semibold text-sm mt-1" id="resDiff"></div></div>
+        <div class="panel2 p-3"><div class="label">Time</div><div class="font-semibold text-sm mt-1 font-mono" id="resTime"></div></div>
+        <div class="panel2 p-3"><div class="label">Best streak</div><div class="font-semibold text-sm mt-1 font-mono" id="resStreak"></div></div>
+      </div>
+      <div class="flex flex-wrap gap-3 justify-center mt-8">
+        <button id="retryWrongBtn" class="hidden btn btn-amber"></button>
+        <button id="reviewToggle" class="btn btn-ghost">Review answers</button>
+        <button id="restartBtn" class="btn btn-acc">New exam</button>
+      </div>
+      <div class="ar text-sm muted mt-8">سبحانك اللهم وبحمدك، أشهد أن لا إله إلا أنت، أستغفرك وأتوب إليك 🤍</div>
+    </div>
+    <div id="reviewList" class="hidden mt-5 grid gap-3"></div>
+  </div>
+</section>
+
+<!-- ================= ADMIN ================= -->
+<section id="view-admin" class="hidden-view">
+  <div class="flex flex-wrap items-end justify-between gap-3 mb-6">
+    <div>
+      <div class="label mb-1" style="color:var(--acc)">Admin</div>
+      <h1 class="font-display text-3xl font-bold">Results Dashboard</h1>
+      <p class="muted text-sm mt-1" id="adminMode"></p>
+    </div>
+    <div class="flex gap-2">
+      <button id="exportCsv" class="btn btn-ghost text-sm py-2">Export CSV</button>
+      <button id="adminLogout" class="btn btn-acc text-sm py-2">Lock &amp; exit</button>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+    <div class="panel2 p-4"><div class="label">Test-takers</div><div class="font-mono text-3xl font-bold" id="stTakers">0</div><div class="text-xs muted">unique students/devices</div></div>
+    <div class="panel2 p-4"><div class="label">Attempts</div><div class="font-mono text-3xl font-bold" id="stAttempts">0</div><div class="text-xs muted">exams submitted</div></div>
+    <div class="panel2 p-4"><div class="label">Average</div><div class="font-mono text-3xl font-bold" id="stAvg">–</div><div class="text-xs muted">mean percentage</div></div>
+    <div class="panel2 p-4"><div class="label">Pass rate</div><div class="font-mono text-3xl font-bold" id="stPass">–</div><div class="text-xs muted">scored ≥ 50%</div></div>
+  </div>
+  <div class="grid grid-cols-3 gap-3 mb-6">
+    <div class="panel2 p-4"><div class="label">👦 Boys</div><div class="font-mono text-3xl font-bold" style="color:#60a5fa" id="stBoys">0</div><div class="text-xs muted" id="stBoysA">0 attempts</div></div>
+    <div class="panel2 p-4"><div class="label">👧 Girls</div><div class="font-mono text-3xl font-bold" style="color:#f0a6c5" id="stGirls">0</div><div class="text-xs muted" id="stGirlsA">0 attempts</div></div>
+    <div class="panel2 p-4"><div class="label">⚗️ Not specified</div><div class="font-mono text-3xl font-bold" id="stNone">0</div><div class="text-xs muted" id="stNoneA">0 attempts</div></div>
+  </div>
+  <div class="panel overflow-hidden">
+    <div class="p-4 border-b flex flex-wrap gap-3 items-center justify-between" style="border-color:var(--line)">
+      <input id="adminSearch" placeholder="Search by student ID…" class="px-3 py-2 text-sm w-full sm:w-72">
+      <div class="flex items-center gap-2 text-xs muted"><span class="w-2 h-2 rounded-full animate-pulse" style="background:var(--acc)"></span> Live updates</div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left label"><tr>
+          <th class="px-4 py-3">#</th><th class="px-4 py-3">Student ID</th><th class="px-4 py-3">Gender</th><th class="px-4 py-3">Date &amp; time</th>
+          <th class="px-4 py-3">Lecture</th><th class="px-4 py-3">Difficulty</th><th class="px-4 py-3 text-right">Score</th><th class="px-4 py-3 text-right">%</th>
+        </tr></thead>
+        <tbody id="adminRows"></tbody>
+      </table>
+    </div>
+    <div id="adminEmpty" class="p-10 text-center muted hidden">No results yet.</div>
+  </div>
+</section>
+</main>
+
+<!-- toast -->
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-6 z-50 opacity-0 pointer-events-none translate-y-4">
+  <div class="ar px-6 py-3 rounded-2xl font-bold text-lg shadow-2xl" style="background:var(--amber);color:var(--amberInk)" id="toastText"></div>
+</div>
+
+<!-- hidden code box -->
+<div id="codeBox" class="hidden fixed inset-0 z-50 grid place-items-center p-4" style="background:var(--overlay)">
+  <div class="panel w-full max-w-xs p-5 fade">
+    <input id="codeInput" type="password" autocomplete="off" placeholder="Code" class="w-full px-4 py-3">
+    <p id="codeErr" class="text-sm mt-2 hidden" style="color:var(--rose)">Invalid code.</p>
+    <button id="codeGo" class="btn btn-acc w-full mt-3">OK</button>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   1) FIREBASE CONFIGURATION
+   - Students can only CREATE a result (cannot read anything).
+   - No visible admin button: tap the "IA" logo 5 times quickly, or open the
+     site URL ending in #admin, to get a code box. The right code opens the
+     dashboard and signs in to Firebase Auth as ADMIN_EMAIL (password = code),
+     so results are protected by the Firestore rules for /instrumental_results.
+   ===================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCJqfG042jw_bA3L_6vdMYja11re16Cx48",
+  authDomain: "bioc209-exam.firebaseapp.com",
+  projectId: "bioc209-exam",
+  storageBucket: "bioc209-exam.firebasestorage.app",
+  messagingSenderId: "877329298616",
+  appId: "1:877329298616:web:17e96833f8c3bd257c704d"
+};
+const ADMIN_EMAIL = "admin@bioc209.app";
+const COLLECTION  = "instrumental_results";
+const PASS_HASH   = "c65fee33c7c6897d28bbb7128cbc38f79f56f8d2c71f98cb3c9a26e8ca0618cf"; // SHA-256 of the code
+const LECTURE_SHARE = 0.12;   // ~12% new lecture-based questions per exam (≈88% bank) in 'mix' mode
+
+/* =====================================================================
+   2) QUESTION DATA
+   type 'mcq'  : o = options, a = correct index, e = explanation
+   type 'essay': ans = model-answer lines (student self-marks)
+   src 'bank' = course question bank · src 'lecture' = new, from lecture details
+   g = near-duplicate group (never two from one group in the same exam)
+   ===================================================================== */
+const QUESTIONS = [
+{"id": 1, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q1", "diff": "easy", "q": "What is the course code for Instrumental Analysis?", "o": ["PA101", "PA314", "PA415", "PA207"], "a": 1, "e": "Lecture 1: Instrumental Analysis course — Code No. PA314, credit hours 3, prerequisite PA101.", "qa": "إيه الكود بتاع مادة Instrumental Analysis؟", "ea": "كود المادة PA314، وهي 3 ساعات معتمدة. أما PA101 فده المتطلب السابق (prerequisite) مش كود المادة.", "oa": ["PA101", "PA314", "PA415", "PA207"]},
+{"id": 2, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q2", "diff": "medium", "q": "Which of the following is NOT listed as a prerequisite for this course?", "o": ["Spectroscopic methods", "PA101", "Credit hours: 3", "A background in mathematics"], "a": 3, "e": "Lecture 1 lists only PA101 as the prerequisite; a background in mathematics is not mentioned at all. (Course key: D.)", "qa": "أنهي واحدة من دول مش مكتوبة كمتطلب سابق (prerequisite) للمادة؟", "ea": "المتطلب الوحيد في المحاضرة هو PA101. الرياضيات مش مذكورة خالص، فإجابة البنك D. خد بالك إن A و C كمان مش متطلبات، بس الدكتور اختار D.", "oa": ["الطرق الطيفية Spectroscopic methods", "PA101", "عدد الساعات: 3", "خلفية في الرياضيات"]},
+{"id": 3, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q3", "diff": "easy", "q": "How many total marks is the course out of?", "o": ["50", "75", "100", "150"], "a": 2, "e": "Paper 50 + practical 25 + midterm 15 + oral 10 = 100 marks.", "qa": "المادة من كام درجة إجمالي؟", "ea": "الورقة 50 + العملي 25 + الميدترم 15 + الشفوي 10 = 100 درجة.", "oa": ["50", "75", "100", "150"]},
+{"id": 4, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q4", "diff": "easy", "q": "What percentage of the total grade is the final paper?", "o": ["25%", "15%", "10%", "50%"], "a": 3, "e": "The final paper is 50 of the 100 marks = 50%.", "qa": "الامتحان النهائي (final paper) نسبته كام من الدرجة الكلية؟", "ea": "الفاينل 50 من 100، يعني 50%.", "oa": ["25%", "15%", "10%", "50%"]},
+{"id": 5, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q5", "diff": "easy", "q": "Which type of analysis involves studying the interaction of light with matter?", "o": ["Chromatography", "Electrochemistry", "Spectroscopy", "Mass spectrometry"], "a": 2, "e": "Spectroscopy analyses the interaction of light with matter to find composition and structure.", "qa": "أنهي نوع تحليل بيدرس تفاعل الضوء مع المادة؟", "ea": "الـ Spectroscopy هو دراسة تفاعل الضوء (الإشعاع) مع المادة عشان نعرف تركيبها.", "oa": ["الكروماتوجرافي", "الكيمياء الكهربية", "الطيف Spectroscopy", "مطياف الكتلة"]},
+{"id": 6, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q6", "diff": "easy", "q": "Which technique separates components based on their affinity to stationary and mobile phases?", "o": ["Mass spectrometry", "Chromatography", "Electrochemistry", "Fluorimetry"], "a": 1, "e": "Chromatography separates components by their different affinities to stationary and mobile phases.", "qa": "أنهي تقنية بتفصل المكونات حسب انجذابها للطور الثابت والطور المتحرك؟", "ea": "الكروماتوجرافي بتفصل المكونات على حسب الـ affinity بتاعتها للـ stationary phase والـ mobile phase.", "oa": ["مطياف الكتلة", "الكروماتوجرافي Chromatography", "الكيمياء الكهربية", "الفلوريمتري"]},
+{"id": 7, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q7", "diff": "easy", "q": "Flame photometry and atomic absorption spectroscopy fall under which category?", "o": ["Chromatographic methods", "Electrochemical methods", "Spectroscopic methods", "Separation methods"], "a": 2, "e": "Flame photometry and atomic absorption are listed with the spectroscopic methods in the course description.", "qa": "الـ Flame photometry والـ Atomic absorption بيتصنفوا تحت أنهي نوع؟", "ea": "الاتنين بيقيسوا تفاعل الضوء مع الذرات، فهما من الطرق الطيفية.", "oa": ["طرق كروماتوجرافية", "طرق كهروكيميائية", "طرق طيفية Spectroscopic", "طرق فصل"]},
+{"id": 8, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q8", "diff": "easy", "q": "Which spectroscopy technique analyzes the absorption of infrared light to identify functional groups?", "o": ["UV-Vis spectroscopy", "NMR spectroscopy", "Mass spectrometry", "IR spectroscopy"], "a": 3, "e": "IR spectroscopy analyses absorption/transmission of infrared light to identify functional groups.", "qa": "أنهي تقنية طيفية بتحلل امتصاص الأشعة تحت الحمراء عشان تحدد المجموعات الوظيفية؟", "ea": "الـ IR بيقيس امتصاص الأشعة تحت الحمراء، وكل functional group ليها امتصاص مميز.", "oa": ["UV-Vis", "NMR", "مطياف الكتلة", "IR"]},
+{"id": 9, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q9", "diff": "easy", "q": "Which technique provides information about molecular structure based on interaction with a magnetic field?", "o": ["IR spectroscopy", "NMR spectroscopy", "UV-Vis spectroscopy", "Flame emission spectroscopy"], "a": 1, "e": "NMR gives structure and dynamics from the interaction of nuclei with a magnetic field.", "qa": "أنهي تقنية بتدي معلومات عن التركيب الجزيئي من خلال التفاعل مع مجال مغناطيسي؟", "ea": "الـ NMR بيعتمد على تفاعل الأنوية مع مجال مغناطيسي قوي.", "oa": ["IR", "NMR", "UV-Vis", "Flame emission"]},
+{"id": 10, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q10", "diff": "easy", "q": "HPLC is a variant of which technique of the following?", "o": ["Gas Chromatography (GC)", "Capillary Electrophoresis", "Liquid Chromatography (LC)", "Mass Spectrometry"], "a": 2, "e": "HPLC is a variant of liquid chromatography (LC) with higher resolution and faster separations.", "qa": "الـ HPLC نوع من أنهي تقنية؟", "ea": "HPLC = High-Performance Liquid Chromatography، يعني نسخة أسرع وأدق من الـ LC.", "oa": ["الكروماتوجرافي الغازية GC", "الفصل الكهربي الشعري", "الكروماتوجرافي السائلة LC", "مطياف الكتلة"]},
+{"id": 11, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q11", "diff": "easy", "q": "Which of the following is an application of instrumental analysis in forensics?", "o": ["Determining drug purity", "Detecting pollutants in water", "Identifying trace evidence at crime scenes", "Ensuring food product safety"], "a": 2, "e": "Forensic analysis: identifying trace evidence and substances found at crime scenes.", "qa": "أنهي واحد من دول تطبيق للتحليل الآلي في الطب الشرعي (forensics)؟", "ea": "الطب الشرعي = مسرح الجريمة. باقي الاختيارات تطبيقات في الأدوية والبيئة والأكل.", "oa": ["تحديد نقاوة الدوا", "كشف الملوثات في المية", "التعرف على الأدلة الدقيقة في مسرح الجريمة", "ضمان سلامة الأكل"]},
+{"id": 12, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q12", "diff": "easy", "q": "What does flame emission spectroscopy measure?", "o": ["Absorption of light by atoms", "Emission of light from excited atoms in a flame", "The mass-to-charge ratio of ions", "The scattering of light by molecules"], "a": 1, "e": "Flame emission spectroscopy measures the light emitted by excited atoms in a flame.", "qa": "الـ Flame emission spectroscopy بيقيس إيه؟", "ea": "Emission يعني انبعاث: الذرات بتتثار في اللهب، ولما ترجع بتطلع ضوء بنقيسه.", "oa": ["امتصاص الذرات للضوء", "الضوء اللي بتطلعه الذرات المثارة في اللهب", "نسبة الكتلة للشحنة", "تشتت الضوء"]},
+{"id": 13, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q13", "diff": "easy", "q": "Which spectroscopy detects the emission of light following the absorption of photons by a fluorophore?", "o": ["Raman Spectroscopy", "Fluorescence Spectroscopy", "IR Spectroscopy", "NMR Spectroscopy"], "a": 1, "e": "Fluorescence spectroscopy detects light emitted after a fluorophore absorbs photons.", "qa": "أنهي طيف بيكشف الضوء اللي بيطلع بعد ما الـ fluorophore يمتص فوتونات؟", "ea": "الـ Fluorescence: المادة تمتص ضوء وبعدين تطلع ضوء بطول موجي أطول.", "oa": ["Raman", "Fluorescence", "IR", "NMR"]},
+{"id": 14, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q14", "diff": "medium", "q": "Raman spectroscopy analyzes what phenomenon to provide information about molecular structure?", "o": ["Absorption of light", "Emission of light", "Scattering of light", "Refraction of light"], "a": 2, "e": "Raman spectroscopy analyses the scattering of light by molecular vibrations.", "qa": "الـ Raman بيحلل أنهي ظاهرة عشان يدي معلومات عن التركيب؟", "ea": "الـ Raman قايم على تشتت الضوء (scattering) بسبب اهتزازات الجزيء.", "oa": ["امتصاص الضوء", "انبعاث الضوء", "تشتت الضوء Scattering", "انكسار الضوء"]},
+{"id": 15, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q15", "diff": "medium", "q": "X-ray crystallography is a technique mentioned for determining what?", "o": ["The concentration of a colored compound", "The functional groups in a molecule", "Molecular structure by scattering X-rays", "The mass of a molecule"], "a": 2, "e": "X-ray crystallography finds the 3-D molecular structure from X-ray diffraction patterns of a crystal.", "qa": "الـ X-ray crystallography بنستخدمها في تحديد إيه؟", "ea": "بتحدد التركيب ثلاثي الأبعاد للجزيء من نمط تشتت (حيود) أشعة X على البلورة.", "oa": ["تركيز مركب ملون", "المجموعات الوظيفية", "التركيب الجزيئي من تشتت أشعة X", "كتلة الجزيء"]},
+{"id": 16, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q16", "diff": "medium", "q": "Which of the following is NOT mentioned as a spectroscopic method?", "o": ["UV-Visible Spectroscopy", "Mass Spectrometry (MS)", "Gas Chromatography (GC)", "Raman Spectroscopy"], "a": 2, "e": "Gas chromatography is a chromatographic (separation) method, not a spectroscopic one.", "qa": "أنهي واحدة من دول مش طريقة طيفية؟", "ea": "الـ GC طريقة فصل (chromatographic)، مش طيفية.", "oa": ["UV-Vis", "مطياف الكتلة MS", "الكروماتوجرافي الغازية GC", "Raman"]},
+{"id": 17, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q17", "diff": "easy", "q": "In pharmaceutical analysis, spectroscopic methods are used for:", "o": ["Separating complex mixtures", "Drug identification and purity determination", "Measuring electron transfer", "Volatile compound separation"], "a": 1, "e": "In pharmaceuticals, spectroscopy verifies drug identity, determines purity and assesses stability.", "qa": "في التحليل الدوائي، الطرق الطيفية بتُستخدم في:", "ea": "في الأدوية: التأكد من هوية الدوا (identity) ونقاوته (purity) وثباته.", "oa": ["فصل الخلائط المعقدة", "التعرف على الدوا وتحديد نقاوته", "قياس انتقال الإلكترونات", "فصل المركبات المتطايرة"]},
+{"id": 18, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q18", "diff": "medium", "q": "Which of the following is listed as an advantage of spectroscopic methods?", "o": ["They are always inexpensive.", "They are non-destructive.", "They require complex sample preparation.", "They provide high sensitivity and selectivity."], "a": 3, "e": "Lecture 1 advantages: non-destructive and non-invasive analysis, high sensitivity and selectivity, wide applications, rapid analysis. (Course key: D — note the lecture also lists non-destructive analysis.)", "qa": "أنهي واحدة من دول ميزة من مميزات الطرق الطيفية؟", "ea": "المحاضرة ذكرت الاتنين: non-destructive وكمان high sensitivity & selectivity، والبنك اختار D. احفظ D.", "oa": ["دايمًا رخيصة", "مش بتتلف العينة", "محتاجة تحضير عينة معقد", "حساسية وانتقائية عالية"]},
+{"id": 19, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q19", "diff": "medium", "q": "What is a key limitation of spectroscopic methods mentioned in the lecture?", "o": ["They are always fast.", "They often require no sample preparation.", "They may require sample preparation and can have spectral interferences.", "They can identify any compound without standards."], "a": 2, "e": "Limitations include interference from complex matrices; the closest option mentions sample preparation and spectral interferences.", "qa": "إيه أهم عيب للطرق الطيفية اتذكر في المحاضرة؟", "ea": "من العيوب: تداخل الـ matrix وصعوبة التفسير، فالعينة ممكن تحتاج تحضير ويحصل spectral interference.", "oa": ["دايمًا سريعة", "غالبًا مش محتاجة تحضير", "ممكن تحتاج تحضير عينة وفيها تداخلات طيفية", "تقدر تحدد أي مركب من غير standards"]},
+{"id": 20, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q20", "diff": "easy", "q": "Which recent advance in spectroscopy is mentioned?", "o": ["Paper chromatography", "Portable and miniaturized spectrometers", "Flame photometry", "Capillary electrophoresis"], "a": 1, "e": "Recent advances: portable and miniaturized instruments, integration with chromatography, chemometrics.", "qa": "أنهي تطور حديث في الـ spectroscopy اتذكر؟", "ea": "من التطورات الحديثة: الأجهزة المحمولة والمصغرة (portable & miniaturized).", "oa": ["كروماتوجرافي الورق", "أجهزة طيفية محمولة وصغيرة", "Flame photometry", "الفصل الكهربي الشعري"]},
+{"id": 21, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q21", "diff": "medium", "q": "The practical component of the course includes all of the following EXCEPT:", "o": ["Project (10 marks)", "Quizzes (5 marks)", "Final paper (50 marks)", "Sheet (5 marks)"], "a": 2, "e": "Practical (25) = project 10 + quizzes 5 + practical 5 + sheet 5. The final paper (50) is separate.", "qa": "الجزء العملي في المادة فيه كل دول ما عدا:", "ea": "العملي 25 = مشروع 10 + كويزات 5 + عملي 5 + شيت 5. الفاينل 50 ده جزء لوحده.", "oa": ["المشروع (10)", "الكويزات (5)", "الفاينل (50)", "الشيت (5)"]},
+{"id": 22, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q22", "diff": "easy", "q": "Which technique separates volatile compounds based on their affinity to a stationary phase and a carrier gas?", "o": ["Liquid Chromatography (LC)", "High-Performance Liquid Chromatography (HPLC)", "Gas Chromatography (GC)", "Capillary Electrophoresis"], "a": 2, "e": "GC separates volatile compounds using a stationary phase and a carrier gas.", "qa": "أنهي تقنية بتفصل المركبات المتطايرة حسب انجذابها لطور ثابت وغاز حامل؟", "ea": "كلمة 'غاز حامل' (carrier gas) و'متطايرة' بتقولك إنها GC.", "oa": ["LC", "HPLC", "الكروماتوجرافي الغازية GC", "الفصل الكهربي الشعري"]},
+{"id": 23, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q23", "diff": "easy", "q": "According to the lecture rules, what should you do with your phone?", "o": ["Keep it on your desk", "Keep it on vibrate", "Keep it silent", "Keep it off"], "a": 2, "e": "Lecture rules: attend on time, no side talking, keep phone silent.", "qa": "حسب قواعد المحاضرة، تعمل إيه في موبايلك؟", "ea": "القاعدة: الموبايل يكون silent.", "oa": ["تحطه على الديسك", "تخليه فيبريشن", "تخليه صامت", "تقفله"]},
+{"id": 24, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q24", "diff": "medium", "q": "UV-visible spectra can provide information about which of the following?", "o": ["Molecular vibrations", "Conjugated systems and electronic transitions", "Mass-to-charge ratio", "The dynamics of atomic nuclei"], "a": 1, "e": "UV-visible spectra give information about conjugated systems and electronic transitions.", "qa": "طيف الـ UV-Vis بيدي معلومات عن إيه؟", "ea": "الـ UV-Vis بيقيس الانتقالات الإلكترونية، فبيدي معلومات عن الـ conjugated systems. الاهتزازات دي شغل الـ IR.", "oa": ["الاهتزازات الجزيئية", "الأنظمة المترافقة والانتقالات الإلكترونية", "نسبة الكتلة للشحنة", "حركة الأنوية"]},
+{"id": 25, "scope": "L1", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q25", "diff": "medium", "q": "What is the primary use of flame emission spectroscopy as mentioned in the lecture?", "o": ["Identifying functional groups", "Determining molecular structure", "Qualitative and quantitative analysis of elements in solution", "Analyzing cultural heritage objects"], "a": 2, "e": "Flame emission spectroscopy is used for qualitative and quantitative analysis of elements in solution.", "qa": "إيه الاستخدام الأساسي للـ Flame emission حسب المحاضرة؟", "ea": "بيُستخدم في التحليل الكيفي والكمي للعناصر (زي Na و K) في المحاليل.", "oa": ["تحديد المجموعات الوظيفية", "تحديد التركيب الجزيئي", "التحليل الكيفي والكمي للعناصر في المحلول", "تحليل الآثار التاريخية"]},
+{"id": 26, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q26", "diff": "easy", "q": "What is the primary phenomenon measured in UV-Visible spectroscopy?", "o": ["Emission of light", "Scattering of light", "Absorption or transmission of light", "Refraction of light"], "a": 2, "e": "UV-Vis measures the absorption or transmission of UV and visible light.", "qa": "إيه الظاهرة الأساسية اللي بيقيسها الـ UV-Vis؟", "ea": "الـ UV-Vis بيقيس قد إيه العينة امتصت (absorbance) أو سمحت بنفاذ (transmittance) الضوء.", "oa": ["انبعاث الضوء", "تشتت الضوء", "امتصاص أو نفاذ الضوء", "انكسار الضوء"]},
+{"id": 27, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q27", "diff": "easy", "q": "The principle of UV-Visible spectroscopy is based on which type of transition in molecules?", "o": ["Vibrational transitions", "Rotational transitions", "Electronic transitions", "Nuclear spin transitions"], "a": 2, "e": "Absorbing UV/visible photons moves electrons from the ground state to an excited state (electronic transitions).", "qa": "مبدأ الـ UV-Vis قايم على أنهي نوع انتقال في الجزيئات؟", "ea": "امتصاص UV/Visible بينقل الإلكترونات من الـ ground state للـ excited state، يعني electronic transitions.", "oa": ["اهتزازي", "دوراني", "إلكتروني", "انتقال لف الأنوية"]},
+{"id": 28, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q28", "diff": "easy", "q": "The Beer-Lambert Law is expressed as:", "o": ["A = εc/l", "A = εcl", "A = cl/ε", "A = l/εc"], "a": 1, "e": "Beer-Lambert law: A = εcl.", "qa": "قانون Beer-Lambert بيتكتب إزاي؟", "ea": "A = εcl، وكلهم مضروبين في بعض.", "oa": ["A = εc/l", "A = εcl", "A = cl/ε", "A = l/εc"]},
+{"id": 29, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q29", "diff": "medium", "q": "According to the Beer-Lambert law, absorbance is directly proportional to:", "o": ["Only concentration", "Only path length", "Both concentration and path length", "Molar absorptivity only"], "a": 2, "e": "A = εcl, so absorbance is directly proportional to both concentration (c) and path length (l).", "qa": "حسب Beer-Lambert، الامتصاص بيتناسب طرديًا مع:", "ea": "A = εcl، فلو زودت التركيز (c) أو طول المسار (l) الامتصاص يزيد.", "oa": ["التركيز بس", "طول المسار بس", "التركيز وطول المسار الاتنين", "الـ molar absorptivity بس"]},
+{"id": 30, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q30", "diff": "easy", "q": "What is the primary instrument used for UV-Visible spectroscopy?", "o": ["A chromatograph", "A mass spectrometer", "A spectrophotometer", "A fluorometer"], "a": 2, "e": "The UV-visible spectrophotometer is the primary instrument.", "qa": "إيه الجهاز الأساسي المستخدم في الـ UV-Vis؟", "ea": "الجهاز اسمه UV-Visible spectrophotometer.", "oa": ["كروماتوجراف", "مطياف كتلة", "Spectrophotometer", "Fluorometer"]},
+{"id": 31, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q31", "diff": "medium", "q": "The UV-visible spectroscopy covers which wavelength range?", "o": ["100-400 nm", "400-700 nm only", "190-900 nm", "900-2500 nm"], "a": 2, "e": "Lecture 2: UV-Vis covers 190–900 nm (UV 190–400 nm, visible 400–900 nm).", "qa": "الـ UV-Vis بيغطي أنهي مدى من الأطوال الموجية؟", "ea": "حسب المحاضرة: 190–900 nm (الـ UV من 190 لـ 400 والـ Visible من 400 لـ 900).", "oa": ["100-400 nm", "400-700 nm بس", "190-900 nm", "900-2500 nm"]},
+{"id": 32, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q32", "diff": "easy", "q": "Which region of the spectrum does the range 190-400 nm correspond to?", "o": ["Visible", "Infrared", "Near-infrared", "Ultraviolet"], "a": 3, "e": "190–400 nm is the ultraviolet region.", "qa": "المدى 190-400 nm بيمثل أنهي منطقة؟", "ea": "190–400 nm هي منطقة الـ Ultraviolet.", "oa": ["المرئي", "تحت الحمراء", "تحت الحمراء القريبة", "فوق البنفسجي"]},
+{"id": 33, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q33", "diff": "easy", "q": "Functional groups responsible for UV-visible light absorption are called:", "o": ["Fluorophores", "Chromophores", "Auxochromes", "Analytes"], "a": 1, "e": "Chromophores are the functional groups responsible for UV-visible absorption.", "qa": "المجموعات الوظيفية المسؤولة عن امتصاص UV-Vis اسمها:", "ea": "الـ Chromophore هي الجزء اللي بيمتص الضوء في الجزيء.", "oa": ["Fluorophores", "Chromophores", "Auxochromes", "Analytes"]},
+{"id": 34, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q34", "diff": "medium", "q": "Which of the following is given as an example of a chromophore?", "o": ["Hydroxyl group (-OH)", "Carbonyl group (-C=O)", "Alkane chain (-CH2-CH3)", "Water (H2O)"], "a": 1, "e": "Chromophore examples: conjugated systems, aromatic rings, carbonyl groups (-C=O).", "qa": "أنهي واحد من دول مثال على chromophore؟", "ea": "الكربونيل (C=O) فيه π bond، فبيمتص UV، وده من أمثلة المحاضرة.", "oa": ["مجموعة الهيدروكسيل -OH", "مجموعة الكربونيل -C=O", "سلسلة ألكان", "المية"]},
+{"id": 35, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q35", "diff": "easy", "q": "What information does an absorption spectrum primarily provide?", "o": ["The mass of the molecule", "The boiling point of the compound", "The relationship between absorbance and wavelength", "The rate of a chemical reaction"], "a": 2, "e": "An absorption spectrum plots absorbance against wavelength.", "qa": "طيف الامتصاص (absorption spectrum) بيوضح أساسًا إيه؟", "ea": "هو رسمة بين الـ absorbance والـ wavelength.", "oa": ["كتلة الجزيء", "درجة الغليان", "العلاقة بين الامتصاص والطول الموجي", "سرعة التفاعل"]},
+{"id": 36, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q36", "diff": "medium", "q": "In quantitative analysis, what is used alongside the Beer-Lambert law to determine analyte concentration?", "o": ["A reference spectrum", "A calibration curve", "A kinetic study", "A solvent blank"], "a": 1, "e": "Quantitative analysis uses Beer-Lambert law with calibration curves of known concentrations.", "qa": "في التحليل الكمي، بنستخدم إيه مع Beer-Lambert عشان نحدد التركيز؟", "ea": "بنعمل calibration curve من تركيزات معروفة، ونقيس منه تركيز العينة المجهولة.", "oa": ["طيف مرجعي", "منحنى معايرة Calibration curve", "دراسة كينيتيك", "Blank مذيب"]},
+{"id": 37, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q37", "diff": "medium", "q": "How is UV-Vis spectroscopy used in qualitative analysis?", "o": ["By measuring the rate of a reaction", "By identifying compounds based on their unique absorption spectra", "By separating components in a mixture", "By assessing the purity of a chemical"], "a": 1, "e": "Qualitative analysis identifies compounds by their unique absorption spectra (compared with references).", "qa": "الـ UV-Vis بيُستخدم في التحليل الكيفي إزاي؟", "ea": "كيفي = نعرف المادة دي إيه، وده بمقارنة طيفها المميز بمرجع.", "oa": ["بقياس سرعة التفاعل", "بالتعرف على المركبات من طيف امتصاصها المميز", "بفصل مكونات الخليط", "بتقييم نقاوة المادة"]},
+{"id": 38, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q38", "diff": "medium", "q": "In kinetic studies, UV-Vis spectroscopy is used to monitor reactions by:", "o": ["Identifying the final product", "Measuring changes in absorbance over time", "Creating a calibration curve", "Comparing to a reference spectrum"], "a": 1, "e": "Kinetic studies follow reaction rates by measuring absorbance changes over time.", "qa": "في دراسات الكينيتيك، الـ UV-Vis بيتابع التفاعل إزاي؟", "ea": "كينيتيك = سرعة، فبنقيس الـ absorbance على فترات زمنية.", "oa": ["بتحديد الناتج النهائي", "بقياس التغير في الامتصاص مع الوقت", "بعمل منحنى معايرة", "بالمقارنة بطيف مرجعي"]},
+{"id": 39, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q39", "diff": "medium", "q": "What is a key limitation of UV-Visible spectroscopy?", "o": ["It is only useful for gases.", "It requires very complex and expensive instruments.", "It is limited to compounds that absorb UV or visible light.", "It destroys the sample during analysis."], "a": 2, "e": "UV-Vis only detects compounds that absorb UV or visible light (need a chromophore).", "qa": "إيه أهم عيب للـ UV-Vis؟", "ea": "لو المركب مفيهوش chromophore مش هيمتص، فمش هنقدر نقيسه.", "oa": ["مفيد للغازات بس", "محتاج أجهزة معقدة وغالية جدًا", "مقتصر على المركبات اللي بتمتص UV أو مرئي", "بيتلف العينة"]},
+{"id": 40, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q40", "diff": "medium", "q": "What type of structural information does UV-Visible spectroscopy provide?", "o": ["Detailed 3D structure of a molecule", "Identification of specific functional groups like -OH", "Limited details, mainly about conjugated systems and chromophores", "The exact molecular weight"], "a": 2, "e": "UV-Vis gives limited structural details; other techniques are needed for complex molecules.", "qa": "الـ UV-Vis بيدي معلومات تركيبية من أنهي نوع؟", "ea": "الـ UV-Vis معلوماته التركيبية محدودة. التفاصيل محتاجة IR و NMR.", "oa": ["تركيب ثلاثي الأبعاد مفصل", "تحديد مجموعات وظيفية زي -OH", "معلومات محدودة، أساسًا عن الأنظمة المترافقة والـ chromophores", "الوزن الجزيئي بالظبط"]},
+{"id": 41, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q41", "diff": "medium", "q": "What is the purpose of derivative spectroscopy?", "o": ["To increase the intensity of absorption", "To enhance spectral resolution and identify overlapping peaks", "To measure fluorescence", "To change the color of the sample"], "a": 1, "e": "Derivative spectroscopy enhances resolution and helps identify overlapping peaks.", "qa": "إيه الهدف من الـ derivative spectroscopy؟", "ea": "بناخد مشتقة الطيف، فالقمم المتداخلة (overlapping peaks) بتبان منفصلة.", "oa": ["زيادة شدة الامتصاص", "تحسين الـ resolution وكشف القمم المتداخلة", "قياس الفلورسنس", "تغيير لون العينة"]},
+{"id": 42, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q42", "diff": "easy", "q": "Which of the following factors can affect absorption in UV-Vis spectroscopy?", "o": ["Solvent polarity", "Temperature", "Concentration", "All of the above"], "a": 3, "e": "Concentration, path length, solvent and temperature all affect absorption.", "qa": "أنهي من العوامل دي ممكن تأثر على الامتصاص في UV-Vis؟", "ea": "التركيز وطول المسار والمذيب والحرارة كلهم بيأثروا.", "oa": ["قطبية المذيب", "درجة الحرارة", "التركيز", "كل ما سبق"]},
+{"id": 43, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q43", "diff": "easy", "q": "Why are quartz cuvettes commonly used as spectrophotometric cells for UV-Vis?", "o": ["They are the cheapest option.", "They are transparent to UV light.", "They are completely opaque.", "They react with the sample to improve signal."], "a": 1, "e": "Quartz cuvettes are used because quartz is transparent to UV light.", "qa": "ليه بنستخدم كوفيتات من الكوارتز في UV-Vis؟", "ea": "الزجاج العادي بيمتص UV، لكن الكوارتز شفاف، فالضوء بيعدي.", "oa": ["أرخص حاجة", "شفافة للأشعة فوق البنفسجية", "معتمة تمامًا", "بتتفاعل مع العينة"]},
+{"id": 44, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q44", "diff": "medium", "q": "Photometric accuracy refers to:", "o": ["The reproducibility of measurements.", "The ability of the instrument to measure accurately.", "The wavelength range of the instrument.", "The type of light source used."], "a": 1, "e": "Photometric accuracy = the ability of the spectrophotometer to measure accurately.", "g": "acc", "qa": "الـ Photometric accuracy معناها:", "ea": "Accuracy = الدقة، يعني قد إيه القراءة قريبة من الحقيقة. Precision = التكرارية.", "oa": ["تكرارية القياسات", "قدرة الجهاز إنه يقيس بدقة (قريب من القيمة الحقيقية)", "مدى الأطوال الموجية", "نوع مصدر الضوء"]},
+{"id": 45, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q45", "diff": "medium", "q": "What does photometric precision refer to?", "o": ["The reproducibility of measurements.", "The lowest detectable concentration.", "The accuracy of the wavelength.", "The ability to identify a compound."], "a": 0, "e": "Photometric precision = reproducibility of measurements.", "g": "acc", "qa": "الـ Photometric precision معناها إيه؟", "ea": "Precision = لو كررت القياس تطلع نفس النتيجة (reproducibility).", "oa": ["تكرارية القياسات", "أقل تركيز ممكن يتكشف", "دقة الطول الموجي", "القدرة على التعرف على مركب"]},
+{"id": 46, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q46", "diff": "medium", "q": "Which recent advance in UV-Vis spectroscopy is mentioned for studying fast reactions?", "o": ["Microspectroscopy", "Multidimensional spectroscopy", "Time-resolved spectroscopy", "Derivative spectroscopy"], "a": 2, "e": "Time-resolved spectroscopy is used for studying fast reactions.", "qa": "أنهي تطور حديث في UV-Vis اتذكر لدراسة التفاعلات السريعة؟", "ea": "Time-resolved بيقيس على فترات زمنية قصيرة جدًا، فبيلحق التفاعلات السريعة.", "oa": ["Microspectroscopy", "Multidimensional", "Time-resolved spectroscopy", "Derivative"]},
+{"id": 47, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q47", "diff": "medium", "q": "Which advance is used for localized analysis of very small samples?", "o": ["Microspectroscopy", "Time-resolved spectroscopy", "HPLC-UV", "Flame photometry"], "a": 0, "e": "Microspectroscopy is used for localized analysis.", "qa": "أنهي تطور بيُستخدم للتحليل الموضعي لعينات صغيرة جدًا؟", "ea": "Micro = صغير، يعني تحليل موضعي (localized) لعينات صغيرة.", "oa": ["Microspectroscopy", "Time-resolved", "HPLC-UV", "Flame photometry"]},
+{"id": 48, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q48", "diff": "medium", "q": "How does the choice of solvent affect a UV-Vis spectrum?", "o": ["It does not affect the spectrum.", "It can influence peak positions and intensities.", "It only affects the UV region.", "It changes the color of the light source."], "a": 1, "e": "Solvent polarity and interactions influence peak positions and intensities.", "qa": "اختيار المذيب بيأثر على طيف UV-Vis إزاي؟", "ea": "قطبية المذيب وتفاعله مع المادة بيزحزح الـ peaks ويغير شدتها.", "oa": ["مش بيأثر", "ممكن يغير أماكن القمم وشدتها", "بيأثر على منطقة UV بس", "بيغير لون مصدر الضوء"]},
+{"id": 49, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q49", "diff": "easy", "q": "The Beer-Lambert law states that absorbance is directly proportional to concentration and path length. What does 'ε' represent in the equation A = εcl?", "o": ["Concentration", "Path length", "Absorbance", "Molar absorptivity"], "a": 3, "e": "In A = εcl, ε is the molar absorptivity.", "qa": "في المعادلة A = εcl، الرمز ε بيمثل إيه؟", "ea": "ε = molar absorptivity، و c التركيز، و l طول المسار، و A الامتصاص.", "oa": ["التركيز", "طول المسار", "الامتصاص", "الامتصاصية المولارية Molar absorptivity"]},
+{"id": 50, "scope": "L2", "src": "bank", "type": "mcq", "tag": "Question Bank · Lec 1&2 bank Q50", "diff": "easy", "q": "Besides quantitative and qualitative analysis, what is another application of UV-Visible spectroscopy mentioned?", "o": ["Separating chiral compounds", "Determining protein tertiary structure", "Quality control and assessing purity", "Measuring the mass of an atom"], "a": 2, "e": "Quality control: assessing purity and quality of pharmaceuticals and chemicals.", "qa": "غير التحليل الكمي والكيفي، إيه تطبيق تاني للـ UV-Vis اتذكر؟", "ea": "من التطبيقات: Quality control وتقييم نقاوة الأدوية والكيماويات.", "oa": ["فصل المركبات الكيرالية", "تحديد التركيب الثالثي للبروتين", "مراقبة الجودة وتقييم النقاوة", "قياس كتلة الذرة"]},
+{"id": 51, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q1", "diff": "easy", "q": "Adopt a method to ensure a final cream product meets specifications.", "o": ["Only check its color and smell", "Perform a complete NMR analysis", "Analyze it by IR and compare to a reference standard batch", "Do a pharmacoeconomic analysis"], "a": 2, "e": "IR is used in QC: compare the product's IR spectrum with a reference standard batch.", "qa": "اختار طريقة تتأكد بيها إن كريم جاهز مطابق للمواصفات.", "ea": "في الـ QC بنقارن الـ IR spectrum للمنتج بالـ reference standard batch.", "oa": ["تشوف لونه وريحته بس", "تعمل تحليل NMR كامل", "تحلله بالـ IR وتقارنه بباتش مرجعي", "تعمل تحليل اقتصادي دوائي"]},
+{"id": 52, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q2", "diff": "easy", "q": "Adopt a quick, non-destructive IR sampling method for a solution.", "o": ["Use the Attenuated Total Reflectance (ATR) technique", "Use a gas cell", "Prepare a KBr pellet", "Evaporate the solvent first"], "a": 0, "e": "ATR gives quick, non-destructive measurements of solids and liquids without extensive preparation.", "g": "atr", "qa": "اختار طريقة IR سريعة ومش بتتلف العينة لمحلول.", "ea": "الـ ATR سريع ومش محتاج تحضير، وبينفع للسوائل والصلب.", "oa": ["تقنية ATR", "Gas cell", "قرص KBr", "تبخر المذيب الأول"]},
+{"id": 53, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q3", "diff": "medium", "q": "Apply analytical knowledge to educate patients on drug storage.", "o": ["Activate the IR spectrum in the bottle", "Tell them to smell it for degradation", "Mention it was tested by NMR", "State that extreme temperatures cause changes detectable by IR or NMR, so store as directed"], "a": 3, "e": "Extreme temperatures can cause chemical changes detectable by IR or NMR, so drugs should be stored as directed.", "qa": "استخدم معلوماتك التحليلية عشان تفهّم المريض إزاي يخزن الدوا.", "ea": "الإجابة العلمية والعملية: الحرارة الشديدة بتغير الدوا كيميائيًا، فلازم التخزين حسب التعليمات.", "oa": ["فعّل طيف IR في الزجاجة", "قوله يشم الدوا", "قوله إنه اتحلل بالـ NMR", "قوله إن الحرارة الشديدة بتعمل تغييرات كيميائية بتتكشف بالـ IR أو NMR، فيخزنه زي ما مكتوب"]},
+{"id": 54, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q4", "diff": "easy", "q": "Apply IR knowledge to explain what the technique shows about a drug.", "o": ["It measures the drug's solubility", "It identifies functional groups by their characteristic frequencies", "It gives the 3D coordinates of every atom", "It determines the total number of atoms"], "a": 1, "e": "IR identifies functional groups by their characteristic absorption frequencies.", "qa": "استخدم معلوماتك عن IR تشرح التقنية دي بتورينا إيه عن الدوا.", "ea": "كل functional group بتمتص عند تردد مميز في IR.", "oa": ["بتقيس ذوبانه", "بتحدد المجموعات الوظيفية من تردداتها المميزة", "بتدي إحداثيات كل ذرة 3D", "بتحدد عدد الذرات الكلي"]},
+{"id": 55, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q5", "diff": "easy", "q": "Apply IR spectroscopy to verify a raw material's identity in QC.", "o": ["Check its physical appearance only", "Compare its IR spectrum to a reference", "Determine its complete 3D structure by NMR", "Perform a wet chemistry titration"], "a": 1, "e": "Raw-material identity is verified by comparing its IR spectrum to a reference spectrum.", "qa": "استخدم IR عشان تتأكد من هوية مادة خام في الـ QC.", "ea": "الـ identity test = مقارنة الطيف بالـ reference spectrum.", "oa": ["تشوف شكلها بس", "تقارن طيف IR بتاعها بمرجع", "تحدد تركيبها 3D بالـ NMR", "تعمل معايرة كيميائية"]},
+{"id": 56, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q6", "diff": "easy", "q": "Apply knowledge of IR to counsel a patient on drug quality.", "o": ["Explain it's used in QC to maintain the drug's chemical integrity", "Review color change for efficacy", "Say all liquid medicines are avoided", "Suggest they send a sample for NMR"], "a": 0, "e": "IR is used in quality control to keep the drug chemically consistent.", "qa": "استخدم معلوماتك عن IR في نصيحة مريض عن جودة الدوا.", "ea": "الـ IR بيُستخدم في الـ QC عشان يضمن إن الدوا ثابت كيميائيًا.", "oa": ["إنه بيُستخدم في الـ QC عشان يحافظ على سلامة الدوا الكيميائية", "راجع تغير اللون", "كل الأدوية السائلة ممنوعة", "ابعت عينة NMR"]},
+{"id": 57, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q7", "diff": "easy", "q": "Articulate the core principle of IR spectroscopy.", "o": ["It measures the emission of light from excited electrons", "It relies on the magnetic moments of atomic nuclei", "It is based on molecules absorbing IR light at their vibrational frequencies", "It measures the mass of molecular fragments"], "a": 2, "e": "Molecules absorb IR radiation that matches their vibrational frequencies.", "qa": "وضّح المبدأ الأساسي للـ IR.", "ea": "الجزيء بيمتص أشعة IR لما ترددها يساوي تردد اهتزاز روابطه.", "oa": ["بيقيس انبعاث ضوء من إلكترونات مثارة", "بيعتمد على العزم المغناطيسي للأنوية", "الجزيئات بتمتص IR عند ترددات اهتزازها", "بيقيس كتلة أجزاء الجزيء"]},
+{"id": 58, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q8", "diff": "easy", "q": "Define what \"wavenumber\" represents in IR spectroscopy.", "o": ["The reciprocal of the wavelength, representing frequency", "The wavelength of light in nanometers", "The intensity of the IR light absorbed", "The speed of the molecular vibration"], "a": 0, "e": "Wavenumber (cm⁻¹) is the reciprocal of wavelength and represents frequency.", "g": "wn", "qa": "عرّف الـ wavenumber في IR.", "ea": "wavenumber = 1/λ بوحدة cm⁻¹، وبيتناسب مع التردد والطاقة.", "oa": ["مقلوب الطول الموجي ويمثل التردد", "الطول الموجي بالنانومتر", "شدة الضوء الممتص", "سرعة الاهتزاز"]},
+{"id": 59, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q9", "diff": "easy", "q": "Define what a \"functional group\" is.", "o": ["A specific arrangement of atoms with characteristic properties", "The solvent used for analysis", "A type of molecular vibration", "The total molecular weight"], "a": 0, "e": "A functional group is a specific arrangement of atoms within a molecule (e.g. C=O, -OH, -NH₂).", "qa": "عرّف الـ functional group.", "ea": "زي -OH و C=O و -NH₂: مجموعة ذرات بتدي الجزيء خواصه.", "oa": ["ترتيب معين لذرات ليه خصائص مميزة", "المذيب المستخدم", "نوع اهتزاز", "الوزن الجزيئي"]},
+{"id": 60, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q10", "diff": "medium", "q": "Demonstrate creativity to improve sensitivity in IR analysis.", "o": ["Ignore the background component", "Use the same old method", "Increase concentration beyond solubility", "Research and adopt new techniques like ATR"], "a": 3, "e": "ATR can enhance sensitivity; adopting newer techniques improves analysis.", "qa": "فكّر بشكل مبتكر عشان تحسن الحساسية في تحليل IR.", "ea": "التحسين ييجي من تبني تقنيات أحدث زي ATR.", "oa": ["تجاهل الخلفية", "استخدم نفس الطريقة القديمة", "زوّد التركيز فوق الذوبانية", "ابحث وطبّق تقنيات جديدة زي ATR"]},
+{"id": 61, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q11", "diff": "medium", "q": "Demonstrate creativity to solve a complex structure elucidation.", "o": ["Ignore contradictory data", "Follow a rigid protocol", "Devise an approach integrating data from both IR and NMR", "Use only one technique"], "a": 2, "e": "IR and NMR complement each other; combined analysis enhances structural elucidation.", "qa": "فكّر بشكل مبتكر لحل تركيب معقد.", "ea": "الـ IR بيدي المجموعات، والـ NMR بيدي الهيكل، فالدمج بيحل التركيب.", "oa": ["تجاهل البيانات المتعارضة", "امشي على بروتوكول جامد", "ادمج بيانات IR و NMR مع بعض", "استخدم تقنية واحدة"]},
+{"id": 62, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q12", "diff": "easy", "q": "Demonstrate effective communication in a lab presentation.", "o": ["Use complex jargon without explanation", "Use well-labeled IR and NMR figures to support conclusions", "Speak in a monotone", "Rush through it"], "a": 1, "e": "Clear, well-labeled IR and NMR figures support the conclusions.", "qa": "اعرض تواصل فعّال في عرض معملي.", "ea": "الأشكال الواضحة المعلّمة بتدعم كلامك.", "oa": ["مصطلحات معقدة من غير شرح", "أشكال IR و NMR واضحة ومتعلّمة تدعم استنتاجاتك", "صوت رتيب", "تستعجل"]},
+{"id": 63, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q13", "diff": "medium", "q": "Demonstrate responsibility when facing an unknown IR spectrum.", "o": ["Hit it away", "Ask a colleague without context", "Guess based on the compound's color", "Retrieve information from spectral databases and analyze the bands"], "a": 3, "e": "Spectral interpretation uses spectral databases and reference texts to assign bands.", "qa": "تصرّف بمسؤولية لما يقابلك طيف IR مجهول.", "ea": "الصح إنك ترجع للـ spectral databases وتحلل كل band.", "oa": ["تتجاهله", "تسأل زميل من غير سياق", "تخمن من اللون", "ترجع لقواعد بيانات الأطياف وتحلل الـ bands"]},
+{"id": 64, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q14", "diff": "medium", "q": "Demonstrate understanding of how IR complements NMR.", "o": ["NMR identifies functional groups; IR details the C-H framework", "IR is faster and cheaper", "Both give identical information", "IR identifies functional groups; NMR details the C-H framework"], "a": 3, "e": "IR identifies functional groups; NMR details the carbon-hydrogen framework.", "g": "irnmr", "qa": "وضّح إزاي الـ IR بيكمّل الـ NMR.", "ea": "احفظها: IR → functional groups، و NMR → carbon-hydrogen framework.", "oa": ["NMR بيحدد المجموعات و IR الهيكل C-H", "IR أسرع وأرخص", "الاتنين نفس المعلومة", "IR بيحدد المجموعات الوظيفية و NMR بيفصّل هيكل C-H"]},
+{"id": 65, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q15", "diff": "easy", "q": "Demonstrate what an IR spectrum displays.", "o": ["Mass-to-charge ratio versus intensity", "Chemical shift versus signal splitting", "Time versus signal decay", "Absorbance versus wavenumber (cm⁻¹)"], "a": 3, "e": "An IR spectrum plots absorbance against wavenumber (cm⁻¹).", "g": "irsp", "qa": "وضّح طيف IR بيعرض إيه.", "ea": "محور X هو الـ wavenumber (cm⁻¹)، ومحور Y هو الامتصاص (أو النفاذية).", "oa": ["m/z ضد الشدة", "Chemical shift ضد الانقسام", "الوقت ضد اضمحلال الإشارة", "الامتصاص ضد الـ wavenumber"]},
+{"id": 66, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q16", "diff": "medium", "q": "Fulfill a QC requirement by standardizing a batch of ibuprofen.", "o": ["Use 2D correlation spectroscopy", "Perform a forensic analysis", "Monitor a chemical reaction", "Use FTIR for quantitative analysis"], "a": 3, "e": "Lecture 3 example: quantitative analysis of ibuprofen in formulations by FTIR.", "qa": "حقق متطلب QC بتوحيد معايرة باتش إيبوبروفين.", "ea": "مثال المحاضرة: التحليل الكمي للإيبوبروفين بالـ FTIR.", "oa": ["2D correlation", "تحليل جنائي", "متابعة تفاعل", "استخدام FTIR للتحليل الكمي"]},
+{"id": 67, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q17", "diff": "easy", "q": "Identify an unknown white powder in a production area.", "o": ["Analyze it by IR and compare to reference spectra", "Perform a full NMR structural elucidation", "Discard it immediately", "Taste a small amount"], "a": 0, "e": "An unknown substance is identified by IR comparison with reference spectra (forensic/QC use).", "qa": "حدد مسحوق أبيض مجهول في منطقة الإنتاج.", "ea": "الـ IR سريع ومقارنته بالمرجع بتحدد المادة.", "oa": ["حلله بالـ IR وقارنه بأطياف مرجعية", "اعمل NMR كامل", "ارميه فورًا", "دوقه"]},
+{"id": 68, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q18", "diff": "easy", "q": "Identify the two main types of molecular vibrations in IR.", "o": ["Spinning and flipping", "Stretching and bending", "Rotation and translation", "Resonance and relaxation"], "a": 1, "e": "The two types of molecular vibrations are stretching and bending.", "qa": "حدد النوعين الأساسيين للاهتزازات في IR.", "ea": "Stretching = تغير طول الرابطة، و Bending = تغير الزاوية.", "oa": ["لف وقلب", "Stretching و Bending", "دوران وانتقال", "رنين واسترخاء"]},
+{"id": 69, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q19", "diff": "medium", "q": "Integrate knowledge to understand how a drug interaction is studied.", "o": ["Knowledge of herbal remedies", "Knowledge of structural analysis (NMR/IR) to identify new compounds", "Knowledge of pharmacokinetics", "Knowledge of CYP products"], "a": 1, "e": "Structural analysis (NMR/IR) identifies the new compounds formed in an interaction.", "qa": "ادمج معلوماتك عشان تفهم إزاي بندرس تداخل دوائي.", "ea": "عشان نعرف التداخل كوّن إيه، لازم structural analysis بالـ NMR/IR.", "oa": ["الأعشاب", "التحليل التركيبي (NMR/IR) لتحديد المركبات الجديدة", "الحرائك الدوائية", "منتجات CYP"]},
+{"id": 70, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q20", "diff": "easy", "q": "Integrate two techniques to confirm a newly synthesized compound's structure.", "o": ["UV-Vis and refractometry", "Melting point and boiling point", "IR spectroscopy and NMR spectroscopy", "Polarimetry and colorimetry"], "a": 2, "e": "IR (functional groups) plus NMR (C-H framework) together confirm a new structure.", "qa": "ادمج تقنيتين عشان تأكد تركيب مركب جديد.", "ea": "IR للمجموعات الوظيفية و NMR للهيكل، فالاتنين مع بعض بيأكدوا التركيب.", "oa": ["UV-Vis وانكسار", "درجة انصهار وغليان", "IR و NMR", "استقطاب ولونية"]},
+{"id": 71, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q21", "diff": "medium", "q": "Interpret an IR spectrum with overlapping bands correctly.", "o": ["Ignore the overlapping region", "Apply deconvolution and consult spectral libraries", "Repeat the sample as requested", "Discard the spectrum"], "a": 1, "e": "Overlapping bands are resolved by deconvolution techniques and spectral libraries.", "qa": "فسّر طيف IR فيه bands متداخلة صح.", "ea": "الـ deconvolution بيفصل القمم المتداخلة رياضيًا.", "oa": ["تجاهل المنطقة", "طبّق deconvolution وارجع لمكتبات الأطياف", "كرر العينة", "ارمي الطيف"]},
+{"id": 72, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q22", "diff": "easy", "q": "Maintain quality control of raw materials using IR.", "o": ["Measure the melting point", "Check the flavor of the materials", "Apply IR to identify the material and ensure it is correct", "IR is replaced by GC"], "a": 2, "e": "IR is used for QC of raw materials and finished products.", "qa": "حافظ على جودة المواد الخام باستخدام IR.", "ea": "الـ IR بيأكد هوية المادة الخام.", "oa": ["قيس درجة الانصهار", "دوق المواد", "استخدم IR تتعرف على المادة وتتأكد إنها صح", "الـ GC بيحل محل IR"]},
+{"id": 73, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q23", "diff": "easy", "q": "Monitor a drug's integrity during a clinical trial.", "o": ["Measure conductivity", "Use IR spectroscopy", "Inspect it visually", "Measure the pH"], "a": 1, "e": "IR spectroscopy monitors the drug's chemical integrity.", "qa": "تابع سلامة دوا أثناء تجربة إكلينيكية.", "ea": "الـ IR بيكشف أي تغيير كيميائي في الدوا.", "oa": ["قيس التوصيلية", "استخدم IR", "افحصه بالعين", "قيس الـ pH"]},
+{"id": 74, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q24", "diff": "easy", "q": "Practice independent learning to stay current in the field.", "o": ["Avoid learning new things", "Only read abstracts", "Read journals to retrieve and analyze information on recent advances", "Rely solely on university lectures"], "a": 2, "e": "Reading journals keeps you current with recent advances.", "qa": "مارس التعلم الذاتي عشان تفضل متابع للجديد.", "ea": "قراءة الـ journals هي الطريقة لمتابعة الـ recent advances.", "oa": ["متتعلمش جديد", "اقرأ الملخصات بس", "اقرأ الدوريات العلمية وحلل الجديد", "اعتمد على المحاضرات بس"]},
+{"id": 75, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q25", "diff": "medium", "q": "Provide an explanation for a drug-food interaction.", "o": ["Base it on the molecular structure elucidated by analytical chemistry", "Base it on pharmacokinetics alone", "Base it on pharmacy administration", "Base it on pharmacology alone"], "a": 0, "e": "Interactions are explained by molecular structure, elucidated by analytical chemistry.", "qa": "فسّر تداخل بين دوا وأكل.", "ea": "التداخل بيتفسر بالتركيب الجزيئي اللي بنعرفه بالتحليل.", "oa": ["على أساس التركيب الجزيئي اللي الكيمياء التحليلية حددته", "الحرائك الدوائية بس", "إدارة الصيدلة", "الفارماكولوجي بس"]},
+{"id": 76, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q26", "diff": "easy", "q": "Provide counseling on drug consistency and purity.", "o": ["Explain the packaging is attractive", "Explain it has a pleasant taste", "Explain that IR is used in QC to maintain batch consistency", "Say that nothing needs to be checked"], "a": 2, "e": "IR is used in QC to keep batches consistent.", "qa": "انصح المريض عن ثبات ونقاوة الدوا.", "ea": "الـ IR بيضمن الـ batch consistency.", "oa": ["التغليف شيك", "طعمه حلو", "الـ IR بيُستخدم في الـ QC عشان كل باتش يطلع زي التاني", "مفيش حاجة محتاجة فحص"]},
+{"id": 77, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q27", "diff": "medium", "q": "Relate the effect of pH on a drug's stability to analytical chemistry.", "o": ["Recognize that pH can affect drug stability and its analytical spectra", "Say the pharmacist must perform the analysis", "State pH has no effect", "Focus only on the brand name"], "a": 0, "e": "pH can affect drug stability and therefore its spectra.", "qa": "اربط تأثير الـ pH على ثبات الدوا بالكيمياء التحليلية.", "ea": "الـ pH ممكن يكسّر الدوا أو يغير شكله، فالطيف يتغير.", "oa": ["الـ pH ممكن يأثر على ثبات الدوا وعلى طيفه", "الصيدلي هو اللي يحلل", "الـ pH ملوش تأثير", "ركز على الاسم التجاري"]},
+{"id": 78, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q28", "diff": "easy", "q": "Retrieve and critically analyze information to interpret a strange IR band.", "o": ["Rely on old memory", "Check the waste disposal log", "Consult up-to-date spectral databases and literature", "Trust the lowest-quality source"], "a": 2, "e": "Up-to-date spectral databases and literature are used to interpret unusual bands.", "qa": "دوّر وحلل معلومات عشان تفسر band غريب في IR.", "ea": "المرجع الحديث والـ databases هما الصح.", "oa": ["اعتمد على ذاكرتك", "شوف سجل النفايات", "ارجع لقواعد بيانات الأطياف والمراجع الحديثة", "ثق في أضعف مصدر"]},
+{"id": 79, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q29", "diff": "easy", "q": "Use technologies and media to create a training module on IR.", "o": ["Create engaging content with videos and simulations", "Only use text", "Keep it long and complicated", "Avoid examples"], "a": 0, "e": "Engaging content with videos and simulations makes the best training module.", "qa": "استخدم التكنولوجيا تعمل موديول تدريب عن IR.", "ea": "الفيديوهات والـ simulations بتخلي التعلم أسهل.", "oa": ["محتوى جذاب بفيديوهات ومحاكاة", "نص بس", "طويل ومعقد", "من غير أمثلة"]},
+{"id": 80, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · IR bank Q30", "diff": "easy", "q": "Utilize your knowledge to state what an IR absorption band corresponds to.", "o": ["The molecule's color", "A specific carbon-carbon bond in the molecule", "A specific molecular vibration or functional group", "The total number of atoms"], "a": 2, "e": "Each IR absorption band corresponds to a specific molecular vibration or functional group.", "qa": "وضّح الـ absorption band في IR بيمثل إيه.", "ea": "كل band = اهتزاز معين لرابطة أو functional group.", "oa": ["لون الجزيء", "رابطة كربون-كربون معينة", "اهتزاز جزيئي معين أو مجموعة وظيفية", "عدد الذرات"]},
+{"id": 81, "scope": "L4", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q1", "diff": "easy", "q": "Identify what makes NMR spectroscopy possible.", "o": ["The overall electrical charge of the nucleus.", "The nuclear spin of atoms with an odd number of protons or neutrons.", "The number of electrons in the outer shell.", "The molecule's overall weight."], "a": 1, "e": "Nuclei with an odd number of protons or neutrons have a nuclear spin and show resonance.", "qa": "حدد إيه اللي بيخلي الـ NMR ممكن.", "ea": "الأنوية اللي ليها spin (عدد فردي) هي اللي بتعمل resonance في المجال المغناطيسي، زي ¹H و ¹³C.", "oa": ["الشحنة الكهربية للنواة", "الـ nuclear spin للذرات اللي فيها عدد فردي من البروتونات أو النيوترونات", "عدد إلكترونات الغلاف الخارجي", "وزن الجزيء"]},
+{"id": 82, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q2", "diff": "easy", "q": "Define what \"wavenumber\" represents in IR spectroscopy.", "o": ["The intensity of the IR light absorbed.", "The wavelength of light in micrometers.", "The reciprocal of the wavelength, representing frequency.", "The speed of the molecular vibration."], "a": 2, "e": "Wavenumber is the reciprocal of wavelength and represents frequency.", "g": "wn", "qa": "عرّف الـ wavenumber في IR.", "ea": "wavenumber = 1/λ (cm⁻¹)، وده تمثيل للتردد.", "oa": ["شدة الضوء الممتص", "الطول الموجي بالميكرومتر", "مقلوب الطول الموجي ويمثل التردد", "سرعة الاهتزاز"]},
+{"id": 83, "scope": "L4", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q3", "diff": "easy", "q": "Retrieve the definition of \"chemical shift\" from the NMR lecture.", "o": ["The energy difference between spin states.", "The resonance frequency of a nucleus, measured in parts per million (ppm).", "The process of a nucleus flipping its spin.", "The strength of the external magnetic field."], "a": 1, "e": "Chemical shift = the resonance frequency of a nucleus, expressed in ppm.", "qa": "هات تعريف الـ chemical shift من محاضرة NMR.", "ea": "الـ chemical shift = موقع رنين النواة بالـ ppm، وبيتأثر بالبيئة الإلكترونية.", "oa": ["فرق الطاقة بين حالات الـ spin", "تردد رنين النواة مقاس بالـ ppm", "عملية قلب الـ spin", "قوة المجال الخارجي"]},
+{"id": 84, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q4", "diff": "easy", "q": "Demonstrate what an IR spectrum displays.", "o": ["Mass-to-charge ratio versus abundance.", "Chemical shift versus signal intensity.", "Time versus signal decay.", "Absorbance versus wavenumber (cm⁻¹)."], "a": 3, "e": "An IR spectrum plots absorbance against wavenumber (cm⁻¹).", "g": "irsp", "qa": "وضّح طيف IR بيعرض إيه.", "ea": "طيف IR = absorbance (أو transmittance) ضد wavenumber (cm⁻¹).", "oa": ["m/z ضد الوفرة", "Chemical shift ضد الشدة", "الوقت ضد الاضمحلال", "الامتصاص ضد الـ wavenumber"]},
+{"id": 85, "scope": "L4", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q5", "diff": "easy", "q": "Identify the phenomenon responsible for peak splitting in NMR.", "o": ["Chemical shift.", "Spin-spin coupling.", "Shielding.", "Relaxation."], "a": 1, "e": "Spin-spin coupling splits NMR peaks into multiplets.", "qa": "حدد الظاهرة المسؤولة عن انقسام القمم في NMR.", "ea": "الـ spin-spin coupling بين الأنوية المتجاورة بيقسم الـ peak لـ multiplet (doublet, triplet...).", "oa": ["Chemical shift", "Spin-spin coupling", "Shielding", "Relaxation"]},
+{"id": 86, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q6", "diff": "easy", "q": "Adopt a quick, non-destructive IR sampling method for a solution.", "o": ["Prepare a KBr pellet.", "Use the Attenuated Total Reflectance (ATR) technique.", "Use a gas cell.", "Evaporate the solvent first."], "a": 1, "e": "ATR is quick, non-destructive and needs no extensive sample preparation.", "g": "atr", "qa": "اختار طريقة IR سريعة ومش بتتلف العينة لمحلول.", "ea": "الـ ATR: سريع، non-destructive، ومن غير تحضير.", "oa": ["قرص KBr", "تقنية ATR", "Gas cell", "تبخر المذيب"]},
+{"id": 87, "scope": "L3", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q7", "diff": "medium", "q": "Demonstrate understanding of how IR complements NMR.", "o": ["Both give identical information.", "IR identifies functional groups; NMR details the C-H framework.", "IR is faster and cheaper.", "NMR identifies functional groups; IR details the C-H framework."], "a": 1, "e": "IR identifies functional groups; NMR details the C-H framework.", "g": "irnmr", "qa": "وضّح إزاي الـ IR بيكمّل الـ NMR.", "ea": "IR → functional groups، و NMR → C-H framework.", "oa": ["الاتنين نفس المعلومة", "IR بيحدد المجموعات الوظيفية و NMR بيفصّل هيكل C-H", "IR أسرع وأرخص", "NMR المجموعات و IR الهيكل"]},
+{"id": 88, "scope": "L4", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q8", "diff": "medium", "q": "Handle a low-concentration sample for NMR analysis.", "o": ["Use a larger NMR tube.", "Utilize hyperpolarization or high-field instruments.", "Heat the sample.", "Use a lower-field magnet."], "a": 1, "e": "Low sensitivity is improved by high-field instruments and hyperpolarization (also signal averaging, cryogenic probes).", "qa": "تعامل مع عينة تركيزها قليل في NMR.", "ea": "الـ NMR حساسيته قليلة، فبنعليها بمجال أقوى (high-field) أو hyperpolarization.", "oa": ["أنبوبة أكبر", "استخدم hyperpolarization أو أجهزة high-field", "سخّن العينة", "مغناطيس أضعف"]},
+{"id": 89, "scope": "SF", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q9", "diff": "medium", "q": "Identify what Stokes shift represents.", "o": ["Absorption and emission difference", "Mass and energy", "Temperature and pressure", "Time and intensity"], "a": 0, "e": "Stokes shift = the difference between the absorption (excitation) and emission maxima.", "qa": "حدد الـ Stokes shift بيمثل إيه.", "ea": "Stokes shift = الفرق بين أقصى امتصاص (excitation) وأقصى انبعاث (emission)؛ الانبعاث بيكون بطول موجي أطول.", "oa": ["الفرق بين الامتصاص والانبعاث", "الكتلة والطاقة", "الحرارة والضغط", "الوقت والشدة"]},
+{"id": 90, "scope": "SF", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q10", "diff": "medium", "q": "Define quantum yield.", "o": ["Energy loss", "Efficiency of emission", "Temperature change", "Pressure change"], "a": 1, "e": "Quantum yield = photons emitted ÷ photons absorbed — the efficiency of emission.", "qa": "عرّف الـ quantum yield.", "ea": "Quantum yield = عدد الفوتونات المنبعثة ÷ الممتصة، يعني كفاءة الفلورسنس.", "oa": ["فقد الطاقة", "كفاءة الانبعاث", "تغير الحرارة", "تغير الضغط"]},
+{"id": 91, "scope": "SF", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q11", "diff": "medium", "q": "Recall the meaning of fluorescence lifetime.", "o": ["Time of absorption", "Reaction time", "Time a molecule stays excited", "Decay constant only"], "a": 2, "e": "Fluorescence lifetime = the average time a molecule stays in the excited state before emitting.", "qa": "افتكر معنى الـ fluorescence lifetime.", "ea": "Lifetime = متوسط الوقت اللي الجزيء بيقعده في الـ excited state قبل ما يطلع ضوء.", "oa": ["وقت الامتصاص", "وقت التفاعل", "الوقت اللي الجزيء بيفضل فيه مثار", "ثابت الاضمحلال بس"]},
+{"id": 92, "scope": "SF", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q12", "diff": "easy", "q": "Recognize the effect of quenching.", "o": ["Increase fluorescence", "No change", "Light scattering", "Decrease fluorescence"], "a": 3, "e": "Quenching decreases fluorescence intensity.", "qa": "اعرف تأثير الـ quenching.", "ea": "Quenching = إخماد، يعني بيقلل شدة الفلورسنس.", "oa": ["يزود الفلورسنس", "مفيش تغيير", "تشتت ضوء", "يقلل الفلورسنس"]},
+{"id": 93, "scope": "SF", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q13", "diff": "medium", "q": "Identify the structural feature of fluorophores.", "o": ["Saturated bonds", "Aromatic π bonds", "Ionic bonds only", "Metallic bonds"], "a": 1, "e": "Fluorophores are usually rigid, conjugated aromatic systems with π bonds.", "qa": "حدد الصفة التركيبية للـ fluorophores.", "ea": "الـ fluorophores غالبًا أنظمة أروماتية مترافقة وصلبة فيها π bonds.", "oa": ["روابط مشبعة", "روابط π أروماتية", "روابط أيونية بس", "روابط فلزية"]},
+{"id": 94, "scope": "SF", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q14", "diff": "hard", "q": "Integrate the FRET technique to:", "o": ["Measure pressure", "Reduce signals", "Study molecular interactions", "Stop reactions"], "a": 2, "e": "FRET (Förster resonance energy transfer) is used to study molecular interactions and distances.", "qa": "تقنية FRET بنستخدمها في:", "ea": "FRET = نقل طاقة بين جزيئين قريبين، فبيقيس المسافات والتفاعلات الجزيئية.", "oa": ["قياس الضغط", "تقليل الإشارات", "دراسة التفاعلات بين الجزيئات", "إيقاف التفاعلات"]},
+{"id": 95, "scope": "SF", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q15", "diff": "hard", "q": "Apply time-resolved spectrofluorimetry to:", "o": ["Measure lifetime", "Measure pressure", "Reduce signal", "Stop emission"], "a": 0, "e": "Time-resolved spectrofluorimetry measures fluorescence lifetime.", "qa": "الـ time-resolved spectrofluorimetry بنستخدمها في:", "ea": "Time-resolved = قياس مع الوقت، يعني بتقيس الـ fluorescence lifetime.", "oa": ["قياس الـ lifetime", "قياس الضغط", "تقليل الإشارة", "إيقاف الانبعاث"]},
+{"id": 96, "scope": "SF", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q16", "diff": "medium", "q": "Define quantum dots.", "o": ["Large crystals", "Gases", "Liquids", "Nanocrystals"], "a": 3, "e": "Quantum dots are fluorescent semiconductor nanocrystals.", "qa": "عرّف الـ quantum dots.", "ea": "Quantum dots = بلورات نانوية من أشباه الموصلات بتعمل فلورسنس.", "oa": ["بلورات كبيرة", "غازات", "سوائل", "بلورات نانوية Nanocrystals"]},
+{"id": 97, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q17", "diff": "easy", "q": "Identify the statement that most accurately describes the fundamental analytical basis of ELISA.", "o": ["Separation of proteins according to molecular weight followed by fluorescence detection", "Specific antigen–antibody interaction coupled to an enzyme-mediated color reaction", "Direct measurement of antigen concentration through ultraviolet absorption", "Detection of biological substances exclusively through radioactive labeling"], "a": 1, "e": "ELISA = specific antigen–antibody interaction + an enzyme that turns a substrate into a colored product.", "qa": "حدد الجملة اللي بتوصف أساس الـ ELISA التحليلي بدقة.", "ea": "ELISA = تفاعل أنتيجين وأنتيبودي متخصص + إنزيم بيحول substrate لمادة ملونة.", "oa": ["فصل البروتينات حسب الوزن ثم كشف بالفلورسنس", "تفاعل antigen-antibody متخصص مربوط بتفاعل لوني بإنزيم", "قياس مباشر للأنتيجين بامتصاص UV", "كشف بالـ radioactive labeling بس"]},
+{"id": 98, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q18", "diff": "medium", "q": "Distinguish the role of the enzyme-linked antibody from that of the substrate in ELISA.", "o": ["The antibody produces the color, whereas the substrate binds the antigen", "The antibody removes unbound substances, whereas the substrate fixes the antigen", "The antibody blocks nonspecific sites, whereas the substrate binds the target directly", "The antibody provides enzyme activity, whereas the substrate is converted into a colored product"], "a": 3, "e": "The enzyme on the antibody provides activity; the colorless substrate is converted into a colored product.", "qa": "فرّق بين دور الأنتيبودي المربوط بالإنزيم ودور الـ substrate في ELISA.", "ea": "الإنزيم على الأنتيبودي هو اللي بيشتغل، والـ substrate (عديم اللون) هو اللي بيتحول لملون.", "oa": ["الأنتيبودي بيعمل اللون والـ substrate بيربط الأنتيجين", "الأنتيبودي بيشيل غير المرتبط والـ substrate بيثبت الأنتيجين", "الأنتيبودي بيعمل blocking والـ substrate بيربط الهدف", "الأنتيبودي بيدي نشاط الإنزيم، والـ substrate بيتحول لمنتج ملون"]},
+{"id": 99, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q19", "diff": "medium", "q": "Select the ELISA type that primarily detects specific antibodies in a patient's serum using a known antigen fixed to the microplate.", "o": ["Indirect ELISA", "Direct ELISA", "Sandwich ELISA", "Competitive ELISA"], "a": 0, "e": "Indirect ELISA detects specific antibodies in serum using a known antigen fixed to the plate.", "qa": "اختار نوع ELISA اللي بيكشف أنتيبودي معين في سيرم المريض باستخدام أنتيجين معروف متثبت في البليت.", "ea": "الـ Indirect: الأنتيجين المعروف على البليت، وأنتيبودي المريض بيرتبط بيه، وبعدين secondary antibody بإنزيم.", "oa": ["Indirect", "Direct", "Sandwich", "Competitive"]},
+{"id": 100, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q20", "diff": "easy", "q": "Identify the defining structural feature of sandwich ELISA.", "o": ["The antigen competes with a labeled antigen for limited antibody-binding sites", "A single enzyme-linked primary antibody binds directly to an immobilized antigen", "The target antigen is captured between a capture antibody and a detection antibody", "Patient antibodies bind to an enzyme-linked secondary antibody fixed to the plate"], "a": 2, "e": "In sandwich ELISA the antigen is trapped between a capture antibody and a detection antibody.", "qa": "حدد الصفة المميزة لتركيب الـ sandwich ELISA.", "ea": "زي الساندويتش: الأنتيجين في النص بين أنتيبودي تحت (capture) وأنتيبودي فوق (detection).", "oa": ["الأنتيجين بينافس أنتيجين معلّم", "أنتيبودي واحد بإنزيم بيرتبط مباشرة", "الأنتيجين بيتمسك بين capture antibody و detection antibody", "أنتيبودي المريض يرتبط بـ secondary متثبت"]},
+{"id": 101, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q21", "diff": "medium", "q": "Recognize the relationship between antigen concentration and color intensity in competitive ELISA.", "o": ["Both increase proportionally", "Color intensity generally decreases as antigen concentration increases", "Color intensity remains constant regardless of antigen concentration", "Both decrease proportionally"], "a": 1, "e": "Competitive ELISA: color intensity is inversely proportional to antigen concentration.", "qa": "اعرف العلاقة بين تركيز الأنتيجين وشدة اللون في الـ competitive ELISA.", "ea": "في الـ competitive العلاقة عكسية: أنتيجين العينة بياخد الأماكن من الأنتيجين المعلّم، فاللون يقل.", "oa": ["الاتنين يزيدوا مع بعض", "اللون بيقل كل ما الأنتيجين يزيد", "اللون ثابت", "الاتنين يقلوا مع بعض"]},
+{"id": 102, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q22", "diff": "easy", "q": "Identify the principal purpose of adding a blocking buffer in ELISA.", "o": ["To occupy unbound sites and reduce nonspecific binding", "To convert the colorless substrate into a colored product", "To increase the concentration of antigen in the sample", "To detach the immobilized antigen from the microplate"], "a": 0, "e": "Blocking buffer covers unbound sites in the wells and prevents nonspecific binding.", "qa": "حدد الهدف الأساسي من إضافة الـ blocking buffer في ELISA.", "ea": "الـ blocking بيغطي الأماكن الفاضية في الـ wells عشان مفيش حاجة تلزق فيها غلط.", "oa": ["يشغل الأماكن الفاضية ويقلل الارتباط غير المتخصص", "يحول الـ substrate لملون", "يزود تركيز الأنتيجين", "يفك الأنتيجين من البليت"]},
+{"id": 103, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q23", "diff": "easy", "q": "Identify the ELISA format characterized by an enzyme-linked primary antibody that binds directly to the target antigen.", "o": ["Indirect ELISA", "Sandwich ELISA", "Direct ELISA", "Competitive ELISA"], "a": 2, "e": "Direct ELISA uses one enzyme-linked primary antibody that binds the antigen directly.", "qa": "حدد شكل الـ ELISA اللي فيه primary antibody مربوط بإنزيم بيرتبط مباشرة بالأنتيجين.", "ea": "Direct = أنتيبودي واحد (primary) عليه الإنزيم ومرتبط بالأنتيجين على طول.", "oa": ["Indirect", "Sandwich", "Direct", "Competitive"]},
+{"id": 104, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q24", "diff": "hard", "q": "Predict the result when a sample contains a high concentration of antigen in competitive ELISA.", "o": ["More labeled antigen binds, producing stronger color", "More labeled antigen binds, producing weaker color", "Less labeled antigen binds, producing weaker color", "Less labeled antigen binds, producing stronger color"], "a": 2, "e": "High sample antigen → less labeled antigen binds the limited antibody → weaker color.", "qa": "توقع النتيجة لو العينة فيها تركيز أنتيجين عالي في الـ competitive ELISA.", "ea": "أنتيجين العينة الكتير بياخد أماكن الأنتيبودي، فالمعلّم يرتبط أقل واللون يبقى أضعف.", "oa": ["أنتيجين معلّم أكتر يرتبط ولون أقوى", "أنتيجين معلّم أكتر يرتبط ولون أضعف", "أنتيجين معلّم أقل يرتبط ولون أضعف", "أنتيجين معلّم أقل يرتبط ولون أقوى"]},
+{"id": 105, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q25", "diff": "hard", "q": "Diagnose the most likely procedural problem when an ELISA plate is not washed after a binding step and unbound enzyme-linked reagents remain in the wells.", "o": ["The antigen will necessarily become denatured", "Residual enzyme-linked reagents may generate background color and reduce specificity", "The substrate will be unable to react with any enzyme", "The antigen–antibody interaction will necessarily become irreversible"], "a": 1, "e": "Washing removes unbound substances; leftover enzyme reagents give background color and lower specificity.", "qa": "شخّص المشكلة الأرجح لو البليت ماتغسلتش بعد خطوة الارتباط وفضلت كواشف بإنزيم مش مرتبطة.", "ea": "الغسيل بيشيل غير المرتبط، ولو اتساب الإنزيم الزيادة هيلوّن الـ substrate، فيطلع background وإيجابي كاذب.", "oa": ["الأنتيجين هيتدنتر أكيد", "الكواشف الزيادة ممكن تعمل لون خلفية وتقلل التخصصية", "الـ substrate مش هيتفاعل", "التفاعل هيبقى irreversible أكيد"]},
+{"id": 106, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q26", "diff": "medium", "q": "Differentiate sandwich ELISA from competitive ELISA. Which statement is correct?", "o": ["Sandwich ELISA captures the antigen between antibodies, whereas competitive ELISA relies on competition for limited antibody-binding sites", "Sandwich ELISA always produces an inverse signal, whereas competitive ELISA always produces a proportional signal", "Both formats detect targets exclusively through a single enzyme-linked primary antibody", "Both formats require the patient's antibodies to bind to an immobilized known antigen"], "a": 0, "e": "Sandwich = antigen between two antibodies; competitive = competition for limited antibody-binding sites.", "qa": "فرّق بين الـ sandwich والـ competitive ELISA. أنهي جملة صح؟", "ea": "ده تعريف كل واحد فيهم بالظبط.", "oa": ["Sandwich بيمسك الأنتيجين بين أنتيبوديين، و Competitive قايم على التنافس على أماكن ارتباط محدودة", "Sandwich دايمًا عكسي و Competitive دايمًا طردي", "الاتنين بأنتيبودي primary واحد", "الاتنين محتاجين أنتيبودي المريض"]},
+{"id": 107, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q27", "diff": "hard", "q": "Analyze an ELISA plate that develops a strong color signal after substrate addition. Which interpretation is most scientifically defensible without knowing the assay format?", "o": ["The sample must contain a high concentration of antigen", "The sample must contain a high concentration of antibody", "The signal must be inversely proportional to target concentration", "The signal indicates enzyme activity, but its relationship to target concentration depends on the assay format"], "a": 3, "e": "Color shows enzyme activity; whether it rises or falls with the target depends on the format (e.g. inverse in competitive).", "qa": "حلل بليت ELISA طلع لون قوي بعد الـ substrate. إيه التفسير الأصح علميًا من غير ما تعرف نوع الاختبار؟", "ea": "اللون = الإنزيم اشتغل. لو competitive فاللون القوي = تركيز قليل، ولو sandwich = تركيز عالي.", "oa": ["العينة أكيد فيها أنتيجين كتير", "العينة أكيد فيها أنتيبودي كتير", "الإشارة أكيد عكسية", "الإشارة بتدل على نشاط الإنزيم، بس علاقتها بالتركيز بتعتمد على نوع الاختبار"]},
+{"id": 108, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q28", "diff": "medium", "q": "Compare direct and indirect ELISA. Which statement correctly identifies their key difference?", "o": ["Direct ELISA detects only antibodies, whereas indirect ELISA detects only antigens", "Direct ELISA uses an enzyme-linked primary antibody, whereas indirect ELISA uses a primary antibody from the sample and an enzyme-linked secondary antibody", "Direct ELISA requires two antibodies, whereas indirect ELISA requires only one", "Direct ELISA relies on competition, whereas indirect ELISA relies on antigen capture between two antibodies"], "a": 1, "e": "Direct: enzyme-linked primary antibody. Indirect: sample (primary) antibody + enzyme-linked secondary antibody.", "qa": "قارن بين الـ direct والـ indirect ELISA. أنهي جملة بتحدد الفرق صح؟", "ea": "Direct = أنتيبودي واحد بإنزيم. Indirect = primary (من سيرم المريض) + secondary بإنزيم.", "oa": ["Direct للأنتيبودي بس و Indirect للأنتيجين بس", "Direct بيستخدم primary عليه إنزيم، و Indirect بيستخدم primary من العينة + secondary عليه إنزيم", "Direct محتاج أنتيبوديين و Indirect واحد", "Direct تنافسي و Indirect ساندويتش"]},
+{"id": 109, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q29", "diff": "hard", "q": "Evaluate a student's claim that indirect ELISA detects antibodies by adding an enzyme-linked secondary antibody before exposing the plate to the patient's serum. What is the main flaw?", "o": ["Indirect ELISA does not use a known antigen", "Indirect ELISA detects only hormones", "The secondary antibody must bind directly to the antigen rather than the patient's antibody", "The patient's antibodies must first have an opportunity to bind to the immobilized known antigen"], "a": 3, "e": "In indirect ELISA the patient's serum is added first so its antibodies bind the fixed antigen; then the enzyme-linked secondary antibody.", "qa": "طالب قال إن الـ indirect ELISA بيضيف الـ secondary antibody بالإنزيم قبل سيرم المريض. إيه الغلط الأساسي؟", "ea": "الترتيب: أنتيجين على البليت ← سيرم المريض ← secondary بإنزيم ← substrate. الـ secondary بيرتبط بأنتيبودي المريض، فلازم المريض الأول.", "oa": ["الـ Indirect مش بيستخدم أنتيجين معروف", "بيكشف هرمونات بس", "الـ secondary لازم يرتبط بالأنتيجين مش بأنتيبودي المريض", "أنتيبودي المريض لازم يرتبط الأول بالأنتيجين المتثبت"]},
+{"id": 110, "scope": "L6", "src": "bank", "type": "mcq", "tag": "Question Bank · Bank 3 Q30", "diff": "hard", "q": "Assess the validity of the statement: \"If two samples have identical color intensities, they must contain identical target concentrations, even when tested using different ELISA formats.\"", "o": ["Valid, because color intensity is independent of assay design", "Valid only when both samples contain antibodies", "Invalid, because signal relationships and assay conditions differ between formats", "Invalid only when both samples are urine"], "a": 2, "e": "Signal–concentration relationships and conditions differ between formats, so equal colors do not mean equal concentrations.", "qa": "قيّم الجملة: 'لو عينتين ليهم نفس شدة اللون، يبقى نفس التركيز حتى لو بأنواع ELISA مختلفة.'", "ea": "كل نوع ليه علاقة مختلفة (طردية أو عكسية) وظروف مختلفة، فمينفعش نقارن الألوان مباشرة.", "oa": ["صح، اللون مش بيعتمد على التصميم", "صح لو الاتنين فيهم أنتيبودي", "غلط، لأن العلاقة بين الإشارة والتركيز وظروف الاختبار بتختلف بين الأنواع", "غلط لو الاتنين بول بس"]},
+{"id": 111, "scope": "L1", "src": "bank", "type": "essay", "tag": "Question Bank · Essay 1", "diff": "easy", "q": "Identify the main four types of Instrumental Analysis?", "ans": ["Spectroscopy", "Chromatography", "Mass spectrometry", "Electrochemistry"], "note": "Model answer from Lecture 1.", "qa": "حدد الأنواع الأربعة الأساسية للتحليل الآلي.", "ea": "الأربعة: الطيف (Spectroscopy) والكروماتوجرافي (Chromatography) ومطياف الكتلة (Mass spectrometry) والكيمياء الكهربية (Electrochemistry)."},
+{"id": 112, "scope": "L2", "src": "bank", "type": "essay", "tag": "Question Bank · Essay 2", "diff": "easy", "q": "Enumerate the main four components of the UV-visible spectrophotometer?", "ans": ["Light source", "Monochromator", "Sample holder", "Detector"], "note": "Model answer from Lecture 2.", "qa": "عدّد المكونات الأربعة الأساسية لجهاز UV-Vis spectrophotometer.", "ea": "مصدر ضوء (Light source) ← Monochromator بيختار طول موجي واحد ← حامل العينة (الكوفيت) ← Detector بيقيس الضوء اللي عدّى."},
+{"id": 113, "scope": "L3", "src": "bank", "type": "essay", "tag": "Question Bank · Essay 3", "diff": "hard", "q": "describe the main four components of Fourier Transform Infrared (FT-IR) Spectroscopy?", "ans": ["IR source — emits broadband infrared radiation", "Interferometer (beam splitter + fixed and moving mirrors) — creates the interference signal", "Sample compartment — holds the sample in the beam", "Detector (with a computer) — records the interferogram, which is Fourier-transformed into the spectrum"], "note": "The slides only say FT-IR uses interferometry; this model answer uses the standard FT-IR components.", "qa": "اوصف المكونات الأربعة الأساسية لجهاز FT-IR.", "ea": "مصدر IR بيطلع أشعة ← Interferometer (مرايا ثابتة ومتحركة + beam splitter) بيعمل interferogram ← العينة ← Detector، والكمبيوتر بيعمل Fourier transform ويطلع الطيف."},
+{"id": 114, "scope": "L4", "src": "bank", "type": "essay", "tag": "Question Bank · Essay 4", "diff": "medium", "q": "What is the main reason for occurring of Shielding in Nuclear Magnetic Resonance (NMR) Spectroscopy?", "ans": ["Electron density around the nucleus reduces the effective magnetic field felt by the nucleus"], "note": "Model answer from Lecture 4 (deshielding: electron withdrawal increases the effective field).", "qa": "إيه السبب الأساسي لحدوث الـ shielding في NMR؟", "ea": "الإلكترونات حوالين النواة بتعمل مجال مغناطيسي صغير عكس المجال الخارجي، فالنواة بتحس بمجال أقل. إلكترونات أكتر = shielding أكتر."},
+{"id": 115, "scope": "L3", "src": "bank", "type": "essay", "tag": "Question Bank · Essay 5", "diff": "easy", "q": "What are the types of stretching vibrations?", "ans": ["Symmetric stretching", "Asymmetric stretching"], "note": "Model answer from Lecture 3.", "qa": "إيه أنواع الـ stretching vibrations؟", "ea": "Symmetric: الرابطتين بيتمطوا مع بعض في نفس الاتجاه. Asymmetric: واحدة تتمط والتانية تتقلص."},
+{"id": 116, "scope": "L6", "src": "bank", "type": "essay", "tag": "Question Bank · Essay 6", "diff": "medium", "q": "describe four applications of ELISA(Enzyme-Linked Immunosorbent Assay) ?", "ans": ["Diagnosis of infectious diseases (e.g. HIV, hepatitis)", "Hormone detection (e.g. hCG in pregnancy tests)", "Detection of allergies", "Autoimmune disease diagnosis", "Cancer research (tumor markers)", "Measurement of proteins", "Blood screening"], "note": "Any four — model answer from the ELISA lecture.", "qa": "اوصف أربع تطبيقات للـ ELISA.", "ea": "أي أربعة: تشخيص الأمراض المعدية (HIV، الكبد) – كشف الهرمونات (hCG في اختبار الحمل) – الحساسية – أمراض المناعة الذاتية – دلالات الأورام – قياس البروتينات – فحص الدم."},
+{"id": 117, "scope": "L6", "src": "bank", "type": "essay", "tag": "Question Bank · Essay 7", "diff": "easy", "q": "What are the four typed of ELISA(Enzyme-Linked Immunosorbent Assay) ?", "ans": ["Direct ELISA", "Indirect ELISA", "Sandwich ELISA", "Competitive ELISA"], "note": "Model answer from the ELISA lecture.", "qa": "إيه الأنواع الأربعة للـ ELISA؟", "ea": "Direct (أنتيبودي واحد بإنزيم) – Indirect (primary + secondary بإنزيم) – Sandwich (الأنتيجين بين أنتيبوديين) – Competitive (تنافس، والعلاقة عكسية)."},
+{"id": 118, "scope": "L1", "src": "lecture", "type": "mcq", "tag": "Lecture 1 · New", "diff": "medium", "q": "Which electrochemical technique measures the potential difference between two electrodes to determine the concentration of an analyte?", "o": ["Potentiometry", "Cyclic voltammetry", "Conductometry", "Mass spectrometry"], "a": 0, "e": "Lecture 1: potentiometry measures potential difference; cyclic voltammetry measures current vs applied potential; conductometry measures conductivity.", "qa": "أنهي تقنية كهروكيميائية بتقيس فرق الجهد بين قطبين عشان تحدد تركيز المادة؟", "ea": "Potential = جهد، فهي Potentiometry. الـ Voltammetry بتقيس تيار، والـ Conductometry بتقيس توصيلية.", "oa": ["Potentiometry", "Cyclic voltammetry", "Conductometry", "مطياف الكتلة"]},
+{"id": 119, "scope": "L2", "src": "lecture", "type": "mcq", "tag": "Lecture 2 · New", "diff": "medium", "q": "According to the lecture, the visible region of UV-visible spectroscopy covers:", "o": ["400–900 nm", "190–400 nm", "100–190 nm", "900–2500 nm"], "a": 0, "e": "Lecture 2: UV region 190–400 nm, visible region 400–900 nm (total 190–900 nm).", "qa": "حسب المحاضرة، المنطقة المرئية في UV-Vis بتغطي:", "ea": "المرئي 400–900 nm، والـ UV من 190 لـ 400 nm.", "oa": ["400–900 nm", "190–400 nm", "100–190 nm", "900–2500 nm"]},
+{"id": 120, "scope": "L2", "src": "lecture", "type": "mcq", "tag": "Lecture 2 · New", "diff": "hard", "q": "Derivative spectroscopy is based on using:", "o": ["First or higher-order derivatives of the absorbance spectrum", "The emission spectrum of a fluorophore", "The mass-to-charge ratio of fragments", "Two different solvents at the same time"], "a": 0, "e": "Lecture 2: derivative spectroscopy uses first or higher-order derivatives of the absorbance spectrum to resolve overlapping peaks.", "qa": "الـ derivative spectroscopy قايمة على استخدام:", "ea": "بنفاضل (derivative) طيف الامتصاص، فالقمم المتداخلة تتفصل.", "oa": ["المشتقة الأولى أو الأعلى لطيف الامتصاص", "طيف انبعاث fluorophore", "نسبة m/z", "مذيبين في نفس الوقت"]},
+{"id": 121, "scope": "L3", "src": "lecture", "type": "mcq", "tag": "Lecture 3 · New", "diff": "medium", "q": "Which of the following is a bending vibration?", "o": ["Scissoring", "Symmetric stretching", "Asymmetric stretching", "Electronic transition"], "a": 0, "e": "Lecture 3: bending vibrations = scissoring, rocking, wagging, twisting; stretching = symmetric and asymmetric.", "qa": "أنهي واحد من دول bending vibration؟", "ea": "الـ Bending أنواعه: scissoring و rocking و wagging و twisting.", "oa": ["Scissoring", "Symmetric stretching", "Asymmetric stretching", "انتقال إلكتروني"]},
+{"id": 122, "scope": "L3", "src": "lecture", "type": "mcq", "tag": "Lecture 3 · New", "diff": "medium", "q": "Why do IR gas cells have a long path length?", "o": ["To maximize absorption by gases and vapors", "To reduce the cost of the cell", "To prevent the sample from evaporating", "To convert the signal into a frequency spectrum"], "a": 0, "e": "Lecture 3: gas cells analyse gases and vapors and have a long path length to maximize absorption.", "qa": "ليه الـ gas cells في IR طول مسارها كبير؟", "ea": "الغاز تركيزه قليل، فبنطوّل المسار (l) عشان الامتصاص يزيد (A = εcl).", "oa": ["عشان تزود امتصاص الغازات والأبخرة", "تقلل التكلفة", "تمنع التبخر", "تحول الإشارة لطيف"]},
+{"id": 123, "scope": "L4", "src": "lecture", "type": "mcq", "tag": "Lecture 4 · New", "diff": "medium", "q": "Which of the following is a two-dimensional NMR technique?", "o": ["COSY", "ATR", "HPLC", "FRET"], "a": 0, "e": "Lecture 4: 2D NMR techniques include COSY, NOESY, HSQC and HMBC.", "qa": "أنهي واحدة من دول تقنية NMR ثنائية الأبعاد؟", "ea": "الـ 2D NMR: COSY و NOESY و HSQC و HMBC. الـ ATR تبع IR، والـ FRET تبع الفلورسنس.", "oa": ["COSY", "ATR", "HPLC", "FRET"]},
+{"id": 124, "scope": "L4", "src": "lecture", "type": "mcq", "tag": "Lecture 4 · New", "diff": "hard", "q": "Which sample holders are used for solid-state NMR and rotate powdered samples at high speed?", "o": ["MAS rotors", "Quartz cuvettes", "KBr pellets", "Gas cells"], "a": 0, "e": "Lecture 4: MAS rotors hold powdered or solid samples and spin them at high speed; NMR tubes hold liquids.", "qa": "أنهي حوامل عينة بتُستخدم في NMR للحالة الصلبة وبتلف العينات البودرة بسرعة عالية؟", "ea": "MAS = Magic Angle Spinning، يعني rotors بتلف العينة الصلبة بسرعة.", "oa": ["MAS rotors", "كوفيتات كوارتز", "أقراص KBr", "Gas cells"]},
+{"id": 125, "scope": "L5", "src": "lecture", "type": "mcq", "tag": "Gel Electrophoresis · New", "diff": "easy", "q": "In gel electrophoresis, DNA migrates toward which electrode?", "o": ["The positive electrode (anode)", "The negative electrode (cathode)", "It does not move", "Both electrodes equally"], "a": 0, "e": "DNA is negatively charged (phosphate backbone), so it moves toward the positive electrode (anode).", "qa": "في الـ gel electrophoresis، الـ DNA بيتحرك ناحية أنهي قطب؟", "ea": "الـ DNA شحنته سالبة (فوسفات)، فبيروح للموجب (anode).", "oa": ["الموجب (anode)", "السالب (cathode)", "مش بيتحرك", "الاتنين بالتساوي"]},
+{"id": 126, "scope": "L5", "src": "lecture", "type": "mcq", "tag": "Gel Electrophoresis · New", "diff": "easy", "q": "Which molecules travel farther through the gel?", "o": ["Smaller molecules", "Larger molecules", "Only neutral molecules", "All molecules travel the same distance"], "a": 0, "e": "The gel acts as a molecular sieve: smaller molecules move faster and travel farther.", "qa": "أنهي جزيئات بتمشي مسافة أكبر في الجل؟", "ea": "الجل زي المنخل: الصغير بيعدي أسرع ويمشي أبعد.", "oa": ["الأصغر", "الأكبر", "المتعادلة بس", "كلهم نفس المسافة"]},
+{"id": 127, "scope": "L5", "src": "lecture", "type": "mcq", "tag": "Gel Electrophoresis · New", "diff": "easy", "q": "Which type of gel electrophoresis is mainly used to separate DNA and RNA fragments?", "o": ["Agarose gel electrophoresis", "SDS-PAGE", "Isoelectric focusing", "Competitive ELISA"], "a": 0, "e": "Agarose gels are mainly used for DNA and RNA; PAGE/SDS-PAGE mainly for proteins.", "qa": "أنهي نوع gel electrophoresis بيُستخدم أساسًا لفصل DNA و RNA؟", "ea": "الـ Agarose للأحماض النووية، والـ PAGE و SDS-PAGE للبروتينات.", "oa": ["Agarose gel", "SDS-PAGE", "Isoelectric focusing", "Competitive ELISA"]},
+{"id": 128, "scope": "L5", "src": "lecture", "type": "mcq", "tag": "Gel Electrophoresis · New", "diff": "medium", "q": "SDS-PAGE separates proteins mainly according to their:", "o": ["Molecular weight", "Isoelectric point", "Color", "Optical activity"], "a": 0, "e": "SDS-PAGE is a type of PAGE that separates proteins mainly by molecular weight.", "qa": "الـ SDS-PAGE بيفصل البروتينات أساسًا حسب:", "ea": "الـ SDS بيدي البروتينات شحنة سالبة موحدة، فالفصل بيبقى بالحجم (molecular weight).", "oa": ["الوزن الجزيئي", "نقطة التعادل الكهربي", "اللون", "النشاط الضوئي"]},
+{"id": 129, "scope": "L5", "src": "lecture", "type": "mcq", "tag": "Gel Electrophoresis · New", "diff": "medium", "q": "Isoelectric focusing (IEF) separates proteins according to their:", "o": ["Isoelectric point (pI)", "Molecular weight only", "Melting point", "Absorbance at 260 nm"], "a": 0, "e": "IEF separates proteins by their isoelectric point (pI).", "qa": "الـ Isoelectric focusing بيفصل البروتينات حسب:", "ea": "كل بروتين بيقف عند الـ pH اللي شحنته فيه صفر، وده الـ pI بتاعه.", "oa": ["نقطة التعادل الكهربي (pI)", "الوزن الجزيئي بس", "درجة الانصهار", "الامتصاص عند 260 nm"]},
+{"id": 130, "scope": "L5", "src": "lecture", "type": "mcq", "tag": "Gel Electrophoresis · New", "diff": "medium", "q": "What is the role of the molecular marker (DNA ladder)?", "o": ["To estimate DNA fragment sizes", "To conduct electricity and maintain pH", "To create wells for sample loading", "To provide electric current"], "a": 0, "e": "The DNA ladder estimates fragment sizes; the buffer conducts electricity and keeps pH; the comb makes wells; the power supply gives current.", "qa": "إيه دور الـ molecular marker (DNA ladder)؟", "ea": "الـ ladder قطع معروفة الحجم، بنقارن بيها قطعنا. الـ buffer للتوصيل، والـ comb للـ wells، والـ power supply للتيار.", "oa": ["تقدير أحجام قطع الـ DNA", "توصيل الكهربا وتثبيت الـ pH", "عمل الـ wells", "توفير التيار"]},
+{"id": 131, "scope": "L6", "src": "lecture", "type": "mcq", "tag": "ELISA · New", "diff": "easy", "q": "In pregnancy tests, ELISA is used to measure which hormone?", "o": ["Human chorionic gonadotropin (hCG)", "Insulin", "Thyroxine", "Cortisol"], "a": 0, "e": "ELISA lecture: hormone detection, e.g. hCG in pregnancy tests.", "qa": "في اختبارات الحمل، الـ ELISA بيقيس أنهي هرمون؟", "ea": "hCG = Human chorionic gonadotropin، وده هرمون الحمل.", "oa": ["hCG (هرمون الحمل)", "الإنسولين", "الثيروكسين", "الكورتيزول"]}
+];
+
+/* =====================================================================
+   3) APP
+   ===================================================================== */
+const SCOPES = [
+  { key:'ALL', num:'∞', sym:'Σ',  label:'All Lectures',  sub:'Whole question bank',                c:'var(--cA)' },
+  { key:'L1',  num:'01', sym:'In', label:'Lecture 1',     sub:'Introduction & types of analysis',   c:'var(--c1)' },
+  { key:'L2',  num:'02', sym:'Uv', label:'Lecture 2',     sub:'UV-Visible spectroscopy',            c:'var(--c2)' },
+  { key:'L3',  num:'03', sym:'Ir', label:'Lecture 3',     sub:'Infrared (IR / FT-IR)',              c:'var(--c3)' },
+  { key:'L4',  num:'04', sym:'Nm', label:'Lecture 4',     sub:'NMR spectroscopy',                   c:'var(--c4)' },
+  { key:'SF',  num:'SF', sym:'Fl', label:'Fluorescence',  sub:'Spectrofluorimetry (bank)',          c:'var(--c5)' },
+  { key:'L5',  num:'05', sym:'Ge', label:'Gel Electrophoresis', sub:'Lecture 5 · lecture questions', c:'var(--c6)' },
+  { key:'L6',  num:'06', sym:'El', label:'ELISA',         sub:'Lecture 6 · immunoassay',            c:'var(--c7)' }
+];
+const DIFFS = [ { key:'easy', label:'Easy' }, { key:'medium', label:'Medium' }, { key:'hard', label:'Hard' } ];
+const COUNTS = [10, 20, 30, 50];
+
+/* --- Arabic messages (gender-aware: G(male, female) picks the form; default = male/neutral) --- */
+const G = (m, f) => setup.gender === 'girl' ? f : m;
+const YA = (n) => n ? ' يا ' + n : '';
+const PRAISE = [
+  n => `تبارك الله${YA(n)} ${G('✨', '🌸')}`,
+  n => `ما شاء الله ${G('عليك', 'عليكي')}${YA(n)} ${G('🌟', '💖')}`,
+  n => `الله ينوّر${YA(n)} ${G('💡', '✨')}`,
+  n => `بارك الله ${G('فيك', 'فيكي')}${YA(n)} 🤍`,
+  n => `ربنا يزيدك علم${YA(n)} 📚`,
+  n => `اللهم بارك، إجابة في الجون${YA(n)} 🎯`,
+  n => G(`جامد${YA(n)}! كده صح 💪`, `شاطرة${YA(n)}! كده صح 🌷`),
+  n => G(`وحش${YA(n)} 🔥 ما شاء الله`, `برافو${YA(n)} 🎀 ما شاء الله`)
+];
+const NUDGE = [
+  n => `ولا يهمك${YA(n)}، المرة الجاية إن شاء الله ${G('💪', '🌸')}`,
+  n => `${G('قرّبت', 'قرّبتي')}${YA(n)}! ${G('بص', 'بصّي')} على الشرح تحت 👇`,
+  n => `عادي${YA(n)}، اللي بيتعلم بيغلط 🙂`,
+  n => `${G('ركّز', 'ركّزي')} معانا${YA(n)}، الشرح هيفكّها 🔍`
+];
+const STREAKS = {
+  3:  n => `3 ورا بعض 🔥 ${G('كمّل', 'كمّلي')}${YA(n)}!`,
+  5:  n => `5 ورا بعض! الله ينوّر ${G('🔥🔥', '💖💖')}`,
+  10: n => `شكلك مش ${G('بتهزر', 'بتهزري')}${YA(n)}، تبارك الله ${G('😎', '💅')}`,
+  15: n => `15 ورا بعض! ${G('إنت مذاكر ولا حافظ', 'إنتي مذاكرة ولا حافظة')} البنك؟ 😂`,
+  20: n => `20 ورا بعض… الدكتور لازم يعرف ${G('عنك', 'عنِك')} 👀`,
+  25: n => `25! حد ${G('يوقّفه ده', 'يوقّفها دي')} 😂${G('🔥', '✨')}`,
+  30: n => `لا، شكلك ${G('ناوي', 'ناوية')} على FULL MARK 🎯`,
+  40: n => `40!! ${G('ده إنت اللي المفروض تشرح', 'دي إنتي اللي المفروض تشرحي')} المحاضرة 😂`,
+  50: n => `50 ورا بعض… ما شاء الله، ربنا ${G('يحفظك', 'يحفظِك')} ${G('🏆', '👑')}`,
+  75: n => `75؟! ${G('إنت جاي تختبر', 'إنتي جاية تختبري')} البنك ولا البنك ${G('بيختبرك', 'بيختبرِك')}؟ 😂`,
+  100: n => `100 ورا بعض… تبارك الرحمن، ${G('أسطورة 👑', 'أسطورة 👑💖')}`
+};
+const ADHKAR = [
+  'صلِّ على خير الخلق ﷺ',
+  'اذكر الله 🤍 سبحان الله وبحمده، سبحان الله العظيم',
+  'اللهم صلِّ وسلم وبارك على سيدنا محمد ﷺ',
+  'لا حول ولا قوة إلا بالله',
+  'أستغفر الله العظيم وأتوب إليه',
+  'رَبِّ زِدْنِي عِلْمًا 📖',
+  'لا إله إلا أنت سبحانك إني كنت من الظالمين',
+  'سبحان الله، والحمد لله، ولا إله إلا الله، والله أكبر'
+];
+
+/* --- helpers --- */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+const fmtTime = (s) => `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
+const scopeOf = (k) => SCOPES.find(s => s.key === k) || SCOPES[0];
+const diffLabel = (k) => k === 'mixed' ? 'Mixed' : ((DIFFS.find(d => d.key === k) || {}).label || k);
+const SIM_MCQ = 32, SIM_ESSAY = 2;
+const poolFor = (scope) => QUESTIONS.filter(q => (scope === 'ALL' || q.scope === scope) && (
+  setup.mode === 'essay' ? (q.type === 'essay' && q.src === 'bank') : (setup.source !== 'bank' || q.src === 'bank')));
+function showView(name) {
+  ['setup','dua','exam','result','admin'].forEach(v => $('view-' + v).classList.toggle('hidden-view', v !== name));
+  const wasIslamic = document.body.classList.contains('islamic');
+  document.body.classList.toggle('islamic', name === 'dua');
+  if (name === 'dua') islamicDecor(); else if (wasIslamic) applyTheme();
+  if (window.inloEvt) inloEvt('view', name);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+let toastT = null;
+function toast(msg, ms = 2600) {
+  $('toastText').textContent = msg;
+  const t = $('toast'); t.classList.remove('opacity-0', 'translate-y-4');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.add('opacity-0', 'translate-y-4'), ms);
+}
+function confetti(n = 40) {
+  const set = setup.gender === 'girl' ? ['🌸','💖','✨','🎀','🦋','💗','🌷'] : setup.gender === 'boy' ? ['⚡','🔥','🏆','⭐','🚀','💪','🎯'] : ['🎉','✨','⭐','🔬','🧪','🏆','💚'];
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('div'); s.className = 'confetti'; s.textContent = pickOne(set);
+    s.style.left = Math.random() * 100 + 'vw'; s.style.animationDuration = (2.2 + Math.random() * 2.2) + 's';
+    s.style.animationDelay = (Math.random() * .8) + 's'; document.body.appendChild(s); setTimeout(() => s.remove(), 5500);
+  }
+}
+
+/* --- Firebase --- */
+const FB_ENABLED = !!FIREBASE_CONFIG.apiKey;
+let db = null, auth = null;
+if (FB_ENABLED) {
+  try { firebase.initializeApp(FIREBASE_CONFIG); db = firebase.firestore(); auth = firebase.auth();
+        auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(() => {}); }
+  catch (e) { console.error('Firebase init failed', e); }
+}
+const LOCAL_KEY = 'instr_demo_results', PENDING_KEY = 'instr_pending';
+const lsGet = (k) => { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch { return []; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+function studentId() {
+  const make = () => 'Student-' + Array.from({ length: 4 }, () => 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 31)]).join('');
+  try { let id = localStorage.getItem('instr_sid'); if (!id) { id = make(); localStorage.setItem('instr_sid', id); } return id; } catch { return make(); }
+}
+const SID = studentId();
+
+/* =================== SETUP =================== */
+const setup = { name: '', gender: '', scope: 'ALL', count: 10, diff: 'medium', source: 'mix', mode: 'custom' };
+try { setup.source = localStorage.getItem('instr_source') === 'bank' ? 'bank' : 'mix'; } catch {}
+try { const m = localStorage.getItem('instr_mode'); if (m === 'essay' || m === 'sim') setup.mode = m; } catch {}
+if (setup.mode === 'essay') setup.count = 5;
+try { setup.gender = localStorage.getItem('instr_gender') || ''; } catch {}
+try { setup.name = localStorage.getItem('instr_name') || ''; } catch {}
+$('studentName').value = setup.name;
+
+function renderSetup() {
+  const hi = setup.name ? `أهلاً يا ${setup.name} ${G('👋', '🌸')}`
+           : setup.gender === 'boy' ? 'أهلاً بيك يا بطل 👋' : setup.gender === 'girl' ? 'أهلاً بيكي يا بطلة 🌸' : 'Welcome to the lab 👋';
+  $('hello').textContent = hi;
+  $('hello').className = 'font-display text-3xl sm:text-4xl font-bold' + (hi.startsWith('Welcome') ? '' : ' ar text-right sm:text-left');
+  document.querySelectorAll('#genderChips .gchip').forEach(b => b.classList.toggle('on', b.dataset.gender === setup.gender));
+  $('scopeTiles').innerHTML = SCOPES.map(s => `
+    <button type="button" class="tile ${setup.scope === s.key ? 'on' : ''}" style="--c:${s.c};${poolFor(s.key).length ? '' : 'opacity:.35;cursor:not-allowed'}" data-scope="${s.key}" ${poolFor(s.key).length ? '' : 'disabled title="No bank questions for this lecture"'}>
+      <span class="num">${s.num}</span><span class="cnt">${poolFor(s.key).length} Q</span>
+      <div class="sym">${s.sym}</div><div class="font-semibold text-sm">${s.label}</div><div class="nm">${s.sub}</div>
+    </button>`).join('');
+  const max = poolFor(setup.scope).length;
+  $('countChips').innerHTML = COUNTS.map(c => `<button type="button" class="chip ${setup.count === c ? 'on' : ''}" data-count="${c}" ${c > max ? 'disabled' : ''}>${c}</button>`).join('')
+    + `<button type="button" class="chip ${setup.count === max ? 'on' : ''}" data-count="${max}">All ${max}</button>`;
+  $('customMax').textContent = `max ${max}`; $('customCount').max = max;
+  $('diffChips').innerHTML = DIFFS.map(d => {
+    const n = poolFor(setup.scope).filter(q => q.diff === d.key).length;
+    return `<button type="button" class="chip ${setup.diff === d.key ? 'on' : ''}" data-diff="${d.key}">${d.label} <span class="opacity-60">· ${n}</span></button>`;
+  }).join('');
+  const s = scopeOf(setup.scope);
+  document.querySelectorAll('#sourceChoices [data-source]').forEach(b => b.classList.toggle('on', b.dataset.source === setup.source));
+  document.querySelectorAll('#modeChoices [data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === setup.mode));
+  $('secScope').classList.toggle('hidden', setup.mode === 'sim');
+  $('secCount').classList.toggle('hidden', setup.mode === 'sim');
+  $('secSource').classList.toggle('hidden', setup.mode !== 'custom');
+  $('secDiff').classList.toggle('hidden', setup.mode !== 'custom');
+  if (setup.mode === 'sim') { $('summary').innerHTML = `🎓 Exam simulation · <span class="font-mono">${SIM_MCQ}</span> MCQs + <span class="font-mono">${SIM_ESSAY}</span> short-answer · random from the whole bank`; return; }
+  if (setup.mode === 'essay') { $('summary').innerHTML = `✍️ Short-answer only · <span class="font-mono">${setup.count}</span> questions · ${s.label}`; return; }
+  $('summary').innerHTML = `${setup.source === 'bank' ? '📘 Bank only · ' : ''}<span class="font-mono">${setup.count}</span> questions · ${s.label}${s.key !== 'ALL' ? ' — ' + s.sub : ''} · ${setup.count >= max ? 'all levels' : diffLabel(setup.diff)}`;
+}
+$('studentName').addEventListener('input', () => {
+  setup.name = $('studentName').value.trim().replace(/\s+/g, ' ').slice(0, 30);
+  try { localStorage.setItem('instr_name', setup.name); } catch {}
+  renderSetup();
+});
+/* ---- theme (gender) ---- */
+const DECOR = {
+  girl: { items: ['♡','✿','❀','✦','♡','✿','🎀','🌸','💗','✦','♡','❀','🦋','✿'], colors: ['#e39bb6','#b69ad8','#d16d7e','#e8b4c8','#c9a6e0'], op: [.18,.35] },
+  boy:  { items: ['⬡','⚡','▲','⬢','✦','⚡','⬡','▲','⬢','⚛'], colors: ['#3b82f6','#22d3ee','#22c55e','#60a5fa'], op: [.07,.16] }
+};
+function fillDecor(cfg, n) {
+  const d = $('decor'); d.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('span');
+    s.textContent = pickOne(cfg.items);
+    s.style.left = (Math.random() * 96) + 'vw'; s.style.top = (Math.random() * 94) + 'vh';
+    s.style.fontSize = (cfg.size[0] + Math.random() * (cfg.size[1] - cfg.size[0])) + 'px'; s.style.color = pickOne(cfg.colors);
+    s.style.opacity = cfg.op[0] + Math.random() * (cfg.op[1] - cfg.op[0]);
+    s.style.animationDuration = (8 + Math.random() * 10) + 's'; s.style.animationDelay = (-Math.random() * 8) + 's';
+    d.appendChild(s);
+  }
+}
+function islamicDecor() {
+  fillDecor({ items: ['۞','☾','✦','❖','۞','✧','☾','❁'], colors: ['#c8a45c','#d9b86c','#b98f3e'], op: [.14, .32], size: [18, 46] }, 22);
+}
+function applyTheme() {
+  const g = setup.gender;
+  document.body.dataset.theme = g || 'default';
+  const d = $('decor'); d.innerHTML = '';
+  $('nameHint').textContent = G('✍️ اختياري — لو كتبت اسمك هنناديك بيه في رسايل الترحيب والفيدباك بعد كل سؤال وفي النتيجة النهائية.', '✍️ اختياري — لو كتبتي اسمك هنناديكي بيه في رسايل الترحيب والفيدباك بعد كل سؤال وفي النتيجة النهائية.');
+  $('selfPrompt').textContent = G('قارن إجابتك بالإجابة النموذجية… الجواب صح؟', 'قارني إجابتك بالإجابة النموذجية… الجواب صح؟');
+  const cfg = DECOR[g]; if (!cfg) return;
+  fillDecor({ ...cfg, size: [16, 46] }, 18);
+}
+document.addEventListener('click', (e) => {
+  const gb = e.target.closest('[data-gender]');
+  if (gb) { setup.gender = gb.dataset.gender; try { localStorage.setItem('instr_gender', setup.gender); } catch {} applyTheme(); renderSetup(); return; }
+  const md = e.target.closest('[data-mode]');
+  if (md) { setup.mode = md.dataset.mode; try { localStorage.setItem('instr_mode', setup.mode); } catch {}
+    if (!poolFor(setup.scope).length) setup.scope = 'ALL';
+    const mx = poolFor(setup.scope).length; setup.count = Math.min(setup.mode === 'essay' ? mx : 10, mx);
+    $('customCount').value = ''; $('countErr').classList.add('hidden'); renderSetup(); return; }
+  const src = e.target.closest('[data-source]');
+  if (src) { setup.source = src.dataset.source; try { localStorage.setItem('instr_source', setup.source); } catch {}
+    if (!poolFor(setup.scope).length) { setup.scope = 'ALL'; setup.count = 10; }
+    const mx = poolFor(setup.scope).length; if (setup.count > mx) setup.count = Math.min(10, mx);
+    $('customCount').value = ''; renderSetup(); return; }
+  const s0 = e.target.closest('[data-scope]'); if (s0 && s0.disabled) return;
+  const s = s0, c = e.target.closest('[data-count]'), d = e.target.closest('[data-diff]');
+  if (s) { setup.scope = s.dataset.scope; const max = poolFor(setup.scope).length; if (setup.count > max) setup.count = Math.min(10, max); $('customCount').value = ''; renderSetup(); }
+  if (c && !c.disabled) { setup.count = +c.dataset.count; $('customCount').value = ''; $('countErr').classList.add('hidden'); renderSetup(); }
+  if (d) { setup.diff = d.dataset.diff; renderSetup(); }
+});
+$('customCount').addEventListener('input', () => {
+  const v = parseInt($('customCount').value, 10), max = poolFor(setup.scope).length;
+  if (Number.isInteger(v) && v >= 1 && v <= max) { setup.count = v; $('countErr').classList.add('hidden'); renderSetup(); }
+});
+$('startBtn').onclick = () => {
+  const max = poolFor(setup.scope).length;
+  if ($('customCount').value !== '') {
+    const v = Number($('customCount').value);
+    if (!Number.isInteger(v) || v < 1 || v > max) { $('countErr').textContent = `Please enter a whole number between 1 and ${max}.`; $('countErr').classList.remove('hidden'); return; }
+    setup.count = v;
+  }
+  showView('dua');      // du'a & verses first, then "بسم الله نبدأ؟" starts the exam
+};
+$('bismillahBtn').onclick = () => startExam();
+
+/* =================== QUESTION SELECTION =================== */
+function prepareQs(list) {
+  return shuffle(list).map(q => {
+    if (q.type !== 'mcq') return { ...q };
+    const fixed = q.o.some(t => /all (of )?(the|these)|none of|above|^[A-D](\s*,\s*[A-D])+$/i.test(t.trim()));
+    const idx = fixed ? q.o.map((_, i) => i) : shuffle(q.o.map((_, i) => i));
+    return { ...q, opts: idx.map(i => q.o[i]), oaS: q.oa ? idx.map(i => q.oa[i]) : null, ans: idx.indexOf(q.a) };
+  });
+}
+function buildSimulation() {
+  // 32 random bank MCQs (no near-duplicates) + 2 random bank short-answer questions at the end, like the real exam
+  const seen = new Set(), mcq = [];
+  for (const q of shuffle(QUESTIONS.filter(q => q.src === 'bank' && q.type === 'mcq'))) {
+    if (mcq.length >= SIM_MCQ) break; if (q.g && seen.has(q.g)) continue; if (q.g) seen.add(q.g); mcq.push(q);
+  }
+  const essays = shuffle(QUESTIONS.filter(q => q.src === 'bank' && q.type === 'essay')).slice(0, SIM_ESSAY);
+  return [...prepareQs(mcq), ...prepareQs(essays)];
+}
+function buildExam(scope, count, diff) {
+  if (setup.mode === 'sim') return buildSimulation();
+  const pool = poolFor(scope);
+  if (count >= pool.length) return prepareQs(pool);           // whole bank / whole lecture
+  const order = { easy: ['easy','medium','hard'], medium: ['medium','easy','hard'], hard: ['hard','medium','easy'] }[diff];
+  const rank = (q) => order.indexOf(q.diff);
+  const pick = (list, n) => { const seen = new Set(), out = [];
+    for (const q of shuffle(list).sort((a, b) => rank(a) - rank(b))) { if (out.length >= n) break; if (q.g && seen.has(q.g)) continue; if (q.g) seen.add(q.g); out.push(q); }
+    return out; };
+  const bank = pool.filter(q => q.src === 'bank'), lec = pool.filter(q => q.src === 'lecture');
+  let nLec = Math.min(lec.length, Math.max(count >= 7 ? 1 : 0, Math.round(count * LECTURE_SHARE)));
+  let nBank = Math.min(bank.length, count - nLec);
+  nLec = Math.min(lec.length, count - nBank);
+  return prepareQs([...pick(bank, nBank), ...pick(lec, nLec)]);
+}
+
+/* =================== EXAM =================== */
+let exam = null, timerInt = null;
+function startExam(retryQs) {
+  const isRetry = Array.isArray(retryQs);
+  exam = { qs: isRetry ? prepareQs(retryQs) : buildExam(setup.scope, setup.count, setup.diff), isRetry,
+           i: 0, score: 0, answers: [], start: Date.now(), selected: null, done: false, streak: 0, best: 0, saved: false };
+  $('qTotal').textContent = exam.qs.length; $('liveScore').textContent = '0'; $('streak').textContent = '0';
+  clearInterval(timerInt);
+  timerInt = setInterval(() => { $('timer').textContent = fmtTime(Math.floor((Date.now() - exam.start) / 1000)); }, 1000);
+  $('timer').textContent = '00:00';
+  showView('exam'); renderQuestion();
+  const n = setup.name;
+  if (window.inloEvt) inloEvt('start', isRetry);
+  toast(isRetry ? `يلا نصلّح اللي فات${YA(n)} ${G('💪', '🌸')}` : `بسم الله، بالتوفيق${YA(n)} ${G('🤍', '💖')}`);
+}
+
+function renderQuestion() {
+  const q = exam.qs[exam.i];
+  exam.selected = null; exam.done = false;
+  $('qNum').textContent = exam.i + 1;
+  $('progressBar').style.width = `${(exam.i / exam.qs.length) * 100}%`;
+  // reminder after every 5 questions
+  if (exam.i > 0 && exam.i % 5 === 0) { $('reminderText').textContent = pickOne(ADHKAR); $('reminder').classList.remove('hidden'); }
+  else $('reminder').classList.add('hidden');
+  const s = scopeOf(q.scope);
+  $('qTags').innerHTML = `
+    <span class="tag" style="color:${q.src === 'bank' ? 'var(--bankTag)' : 'var(--lecTag)'};border-color:${q.src === 'bank' ? 'var(--bankTag)' : 'var(--lecTag)'}">${q.src === 'bank' ? '📘' : '🧪'} ${esc(q.tag)}</span>
+    <span class="tag" style="color:${s.c}">${esc(s.label)}</span>
+    <span class="tag">${diffLabel(q.diff)}</span>
+    ${q.type === 'essay' ? '<span class="tag" style="color:var(--amber);border-color:var(--amber)">✍️ Short answer</span>' : ''}`;
+  $('qText').textContent = q.q;
+  $('feedback').className = 'hidden mt-5 rounded-xl p-4 text-sm leading-relaxed';
+  $('nextBtn').classList.add('hidden');
+  if (q.type === 'essay') {
+    $('qOptions').innerHTML = ''; $('qOptions').classList.add('hidden');
+    $('essayBox').classList.remove('hidden'); $('essayInput').value = ''; $('essayInput').disabled = false;
+    $('modelBox').classList.add('hidden'); $('selfMark').classList.add('hidden');
+    $('modelList').innerHTML = q.ans.map(l => `<li>• ${esc(l)}</li>`).join('') + (q.note ? `<li class="text-xs muted mt-1">ℹ️ ${esc(q.note)}</li>` : '');
+    $('submitBtn').classList.add('hidden'); $('revealBtn').classList.remove('hidden');
+  } else {
+    $('essayBox').classList.add('hidden'); $('revealBtn').classList.add('hidden'); $('qOptions').classList.remove('hidden');
+    $('qOptions').innerHTML = q.opts.map((o, i) => `<button type="button" class="opt" data-opt="${i}"><span class="k">${String.fromCharCode(65 + i)}</span><span class="pt-0.5">${esc(o)}</span></button>`).join('');
+    $('submitBtn').classList.remove('hidden'); $('submitBtn').disabled = true;
+  }
+  const card = $('qCard'); card.classList.remove('fade'); void card.offsetWidth; card.classList.add('fade');
+  if (window.inloEvt) inloEvt('question', q);
+}
+$('reminderX').onclick = () => $('reminder').classList.add('hidden');
+
+$('qOptions').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-opt]'); if (!b || exam.done) return;
+  exam.selected = +b.dataset.opt;
+  document.querySelectorAll('#qOptions .opt').forEach(el => el.classList.toggle('sel', el === b));
+  $('submitBtn').disabled = false;
+});
+
+function record(ok, extra) {
+  const q = exam.qs[exam.i];
+  exam.done = true;
+  const prev = exam.streak;
+  if (ok) { exam.score++; exam.streak++; exam.best = Math.max(exam.best, exam.streak); }
+  else exam.streak = 0;
+  exam.answers.push({ q, ok, ...extra });
+  $('liveScore').textContent = exam.score; $('streak').textContent = exam.streak;
+  const n = setup.name;
+  if (ok && STREAKS[exam.streak]) toast(STREAKS[exam.streak](n), 3200);
+  else if (ok && exam.streak > 100 && exam.streak % 25 === 0) toast(`${exam.streak} ورا بعض… تبارك الله 😳`, 3200);
+  else if (!ok && prev >= 5) toast(G(`الحصان بيكبو${YA(n)} 😅 يلا عدّاد جديد`, `الفرس بتكبو${YA(n)} 😅 يلا عدّاد جديد 🌸`), 3000);
+  $('progressBar').style.width = `${((exam.i + 1) / exam.qs.length) * 100}%`;
+  if (window.inloEvt) inloEvt(ok ? 'right' : 'wrong', exam.streak);
+  $('nextBtn').textContent = exam.i === exam.qs.length - 1 ? 'Finish & see results →' : 'Next →';
+  $('nextBtn').classList.remove('hidden'); $('nextBtn').focus();
+}
+function feedbackBox(ok, bodyHtml) {
+  const n = setup.name, fb = $('feedback');
+  fb.className = 'mt-5 rounded-xl p-4 text-sm leading-relaxed fade';
+  fb.style.background = ok ? 'var(--okBg)' : 'var(--badBg)';
+  fb.style.border = `1px solid ${ok ? 'var(--okLine)' : 'var(--badLine)'}`;
+  fb.innerHTML = `<div class="ar text-lg font-bold mb-2" style="color:${ok ? 'var(--okText)' : 'var(--badText)'}">${esc(pickOne(ok ? PRAISE : NUDGE)(n))}</div>${bodyHtml}`;
+}
+$('submitBtn').onclick = () => {
+  if (exam.selected === null || exam.done) return;
+  const q = exam.qs[exam.i], ok = exam.selected === q.ans;
+  document.querySelectorAll('#qOptions .opt').forEach((el, i) => {
+    el.disabled = true; el.classList.remove('sel');
+    if (i === q.ans) el.classList.add('ok'); else if (i === exam.selected) el.classList.add('bad');
+  });
+  feedbackBox(ok, `${ok ? '' : `<div class="font-semibold mb-1">Correct answer: (${String.fromCharCode(65 + q.ans)}) ${esc(q.opts[q.ans])}</div>`}<div style="color:var(--soft)">${esc(q.e)}</div>`);
+  $('submitBtn').classList.add('hidden');
+  record(ok, { chosen: exam.selected });
+};
+$('revealBtn').onclick = () => {
+  $('modelBox').classList.remove('hidden'); $('selfMark').classList.remove('hidden');
+  $('revealBtn').classList.add('hidden'); $('essayInput').disabled = true;
+};
+function selfMark(ok) {
+  if (exam.done) return;
+  $('selfMark').classList.add('hidden');
+  feedbackBox(ok, ok ? '<div style="color:var(--soft)">Counted as correct. Keep the model answer in mind for the exam.</div>'
+                     : '<div style="color:var(--soft)">No problem — read the model answer above once more; it will come back in the retry round.</div>');
+  record(ok, { written: $('essayInput').value.trim() });
+}
+$('markRight').onclick = () => selfMark(true);
+$('markWrong').onclick = () => selfMark(false);
+$('nextBtn').onclick = () => { if (exam.i < exam.qs.length - 1) { exam.i++; renderQuestion(); } else finishExam(); };
+
+/* =================== RESULT =================== */
+function finishExam() {
+  clearInterval(timerInt);
+  const total = exam.qs.length, pct = Math.round((exam.score / total) * 1000) / 10;
+  const dur = Math.floor((Date.now() - exam.start) / 1000), n = setup.name, s = scopeOf(setup.scope);
+  const fullBank = !exam.isRetry && setup.mode === 'custom' && setup.scope === 'ALL' && total === poolFor('ALL').length && exam.score === total;
+  let msg;
+  if (fullBank) msg = `ما شاء الله، تبارك الرحمن ${G('عليك', 'عليكي')} ${G('جبت', 'جبتي')} البنك في شوال 👏`;
+  else if (pct === 100) msg = `فُل مارك${YA(n)}! ما شاء الله تبارك الله ${G('🎉', '💖')}`;
+  else if (pct >= 85) msg = `ما شاء الله ${G('عليك', 'عليكي')}${YA(n)}، مستوى عالي ${G('🌟', '🌸')}`;
+  else if (pct >= 70) msg = `حلو أوي${YA(n)}، شوية مراجعة ${G('وتبقى', 'وتبقي')} فُل ${G('💪', '✨')}`;
+  else if (pct >= 50) msg = `${G('عدّيت', 'عدّيتي')}${YA(n)}، بس لسه محتاجين نراجع شوية 📖`;
+  else msg = `ولا يهمك${YA(n)}، ${G('ارجع', 'ارجعي')} للمحاضرات ${G('وحِل', 'وحِلّي')} الغلط تاني وإن شاء الله ${G('تكسّرها', 'تكسّريها')} 🤍`;
+  if (exam.isRetry) msg = (exam.score === total ? `${G('صلّحت', 'صلّحتي')} كل الغلط، تبارك الله ✅` : `فاضل ${total - exam.score} — ${G('حاول', 'حاولي')} تاني ${G('💪', '🌸')}`);
+  $('resLabel').textContent = exam.isRetry ? 'Retry round — your score' : (n ? `${n}'s score` : 'Your score');
+  $('resPct').textContent = pct + '%';
+  $('resPct').style.color = pct >= 75 ? 'var(--acc)' : pct >= 50 ? 'var(--amber)' : 'var(--rose)';
+  $('resScore').textContent = `${exam.score} / ${total} correct`;
+  $('resMsg').textContent = msg;
+  const modeLabel = setup.mode === 'sim' ? `Exam simulation (${SIM_MCQ} MCQ + ${SIM_ESSAY} short-answer)` : setup.mode === 'essay' ? s.label + ' (short-answer only)' : s.label + (setup.source === 'bank' ? ' (bank only)' : '');
+  $('resScope').textContent = setup.mode === 'sim' ? 'Exam simulation' : setup.mode === 'essay' ? s.label + ' · short-answer only' : s.label + (s.key !== 'ALL' ? ' · ' + s.sub : '');
+  $('resDiff').textContent = setup.mode !== 'custom' ? 'Mixed' : (total >= poolFor(setup.scope).length && !exam.isRetry ? 'All levels' : diffLabel(setup.diff));
+  $('resTime').textContent = fmtTime(dur);
+  $('resStreak').textContent = exam.best + ' 🔥';
+  $('reviewList').classList.add('hidden'); $('reviewToggle').textContent = 'Review answers';
+  $('reviewList').innerHTML = exam.answers.map((a, i) => `
+    <div class="panel p-5" style="border-left:4px solid ${a.ok ? 'var(--okLine)' : 'var(--badLine)'}">
+      <div class="flex flex-wrap gap-2 mb-2"><span class="tag">Q${i + 1}</span><span class="tag">${esc(a.q.tag)}</span></div>
+      <div class="font-semibold mb-2">${esc(a.q.q)}</div>
+      ${a.q.type === 'essay'
+        ? `${a.written ? `<div class="text-sm muted mb-1">Your answer: ${esc(a.written)}</div>` : ''}<div class="text-sm" style="color:var(--okText)">Model answer: ${a.q.ans.map(esc).join(' · ')}</div>`
+        : `<div class="text-sm">${a.ok ? '' : `<div style="color:var(--badText)">Your answer: ${esc(a.q.opts[a.chosen])}</div>`}<div style="color:var(--okText)">Correct: ${esc(a.q.opts[a.q.ans])}</div></div><div class="text-sm muted mt-2">${esc(a.q.e)}</div>`}
+    </div>`).join('');
+  const wrong = exam.answers.filter(a => !a.ok).map(a => QUESTIONS.find(x => x.id === a.q.id));
+  exam.wrong = wrong;
+  $('retryWrongBtn').classList.toggle('hidden', wrong.length === 0);
+  $('retryWrongBtn').textContent = `↻ Retry the ${wrong.length} I got wrong`;
+  showView('result');
+  if (window.inloEvt) inloEvt('finish', { pct, wrong: wrong.length, retry: exam.isRetry });
+  if (pct === 100) confetti(fullBank ? 90 : 45);
+  if (!exam.isRetry) saveResult({ studentName: SID, gender: setup.gender || 'none', scope: setup.mode === 'sim' ? 'SIM' : setup.scope, scopeLabel: modeLabel,
+    difficulty: setup.mode === 'custom' ? setup.diff : 'mixed', score: exam.score, total, percentage: pct, durationSec: dur });
+}
+$('retryWrongBtn').onclick = () => { if (exam && exam.wrong && exam.wrong.length) startExam(exam.wrong); };
+$('reviewToggle').onclick = () => { const h = $('reviewList').classList.toggle('hidden'); $('reviewToggle').textContent = h ? 'Review answers' : 'Hide review'; };
+$('restartBtn').onclick = () => { showView('setup'); renderSetup(); };
+
+/* --- silent save with retries + offline queue --- */
+async function sendOne(rec) {
+  if (FB_ENABLED && db) await db.collection(COLLECTION).add({ ...rec, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+  else { const arr = lsGet(LOCAL_KEY); arr.push({ ...rec, id: 'local-' + Date.now(), timestamp: rec.clientTime }); lsSet(LOCAL_KEY, arr); }
+}
+async function saveResult(r) {
+  const rec = { ...r, clientTime: new Date().toISOString() };
+  for (let t = 0; t < 4; t++) {
+    try { await sendOne(rec); exam.saved = true; return; }
+    catch (err) { console.warn('save attempt failed', err); await new Promise(res => setTimeout(res, 1500 * (t + 1))); }
+  }
+  const p = lsGet(PENDING_KEY); p.push(rec); lsSet(PENDING_KEY, p);
+}
+async function flushPending() {
+  const p = lsGet(PENDING_KEY); if (!p.length) return;
+  const left = []; for (const rec of p) { try { await sendOne(rec); } catch { left.push(rec); } } lsSet(PENDING_KEY, left);
+}
+
+/* =================== ADMIN =================== */
+let adminUnsub = null, adminRows = [], adminUnlocked = false;
+async function sha256(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+let logoTaps = [];
+$('logo').addEventListener('click', () => {
+  const now = Date.now(); logoTaps = logoTaps.filter(t => now - t < 3000); logoTaps.push(now);
+  if (logoTaps.length >= 5) { logoTaps = []; openCodeBox(); }
+});
+function openCodeBox() { if (adminUnlocked) { openAdmin(); return; } $('codeInput').value = ''; $('codeErr').classList.add('hidden'); $('codeBox').classList.remove('hidden'); setTimeout(() => $('codeInput').focus(), 50); }
+const closeCodeBox = () => $('codeBox').classList.add('hidden');
+$('codeBox').addEventListener('click', e => { if (e.target === $('codeBox')) closeCodeBox(); });
+$('codeInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('codeGo').click(); if (e.key === 'Escape') closeCodeBox(); });
+$('codeGo').onclick = async () => {
+  const pass = $('codeInput').value.trim(); $('codeGo').disabled = true;
+  try {
+    if (!pass || (await sha256(pass)) !== PASS_HASH) throw new Error('bad');
+    if (FB_ENABLED && auth) await auth.signInWithEmailAndPassword(ADMIN_EMAIL, pass);
+    adminUnlocked = true; closeCodeBox(); clearInterval(timerInt); openAdmin();
+  } catch (e) { if (e.message !== 'bad') console.error(e); $('codeErr').classList.remove('hidden'); }
+  finally { $('codeGo').disabled = false; }
+};
+if (location.hash === '#admin') { history.replaceState(null, '', location.pathname + location.search); setTimeout(openCodeBox, 300); }
+
+function openAdmin() {
+  showView('admin');
+  $('adminMode').textContent = FB_ENABLED && db ? 'Connected to Firebase — results appear in real time.' : 'Demo mode — showing results stored in this browser only.';
+  if (adminUnsub) return;
+  if (FB_ENABLED && db) {
+    adminUnsub = db.collection(COLLECTION).orderBy('timestamp', 'desc').onSnapshot(snap => {
+      adminRows = snap.docs.map(d => { const x = d.data(); return { ...x, ts: x.timestamp?.toDate ? x.timestamp.toDate() : new Date(x.clientTime || Date.now()) }; });
+      renderAdmin();
+    }, err => { $('adminMode').textContent = 'Permission denied or connection error: ' + (err.code || err.message); });
+  } else {
+    const load = () => { adminRows = lsGet(LOCAL_KEY).map(x => ({ ...x, ts: new Date(x.timestamp) })).sort((a, b) => b.ts - a.ts); renderAdmin(); };
+    load(); const on = e => { if (e.key === LOCAL_KEY) load(); }; window.addEventListener('storage', on); adminUnsub = () => window.removeEventListener('storage', on);
+  }
+}
+// names are never shown: older records that stored "Name · Student-XXXX" are reduced to the ID
+const idOf = (r) => { const s = String(r.studentName || ''); const m = s.match(/Student-[A-Z0-9]{4}/); return m ? m[0] : 'Unknown'; };
+const genOf = (r) => r.gender === 'boy' || r.gender === 'girl' ? r.gender : 'none';
+const GEN_LABEL = { boy: '👦 Boy', girl: '👧 Girl', none: '<span class="muted">—</span>' };
+function renderAdmin() {
+  const term = $('adminSearch').value.trim().toLowerCase();
+  const rows = adminRows.filter(r => !term || idOf(r).toLowerCase().includes(term));
+  // unique students by ID; a student's gender = the one on their latest attempt (rows are newest first)
+  const latest = new Map(); adminRows.forEach(r => { if (!latest.has(idOf(r))) latest.set(idOf(r), genOf(r)); });
+  const cnt = { boy: 0, girl: 0, none: 0 }, att = { boy: 0, girl: 0, none: 0 };
+  latest.forEach(g => cnt[g]++); adminRows.forEach(r => att[genOf(r)]++);
+  $('stBoys').textContent = cnt.boy; $('stGirls').textContent = cnt.girl; $('stNone').textContent = cnt.none;
+  $('stBoysA').textContent = att.boy + ' attempts'; $('stGirlsA').textContent = att.girl + ' attempts'; $('stNoneA').textContent = att.none + ' attempts';
+  $('stTakers').textContent = latest.size; $('stAttempts').textContent = adminRows.length;
+  $('stAvg').textContent = adminRows.length ? (adminRows.reduce((a, r) => a + (+r.percentage || 0), 0) / adminRows.length).toFixed(1) + '%' : '–';
+  $('stPass').textContent = adminRows.length ? Math.round(adminRows.filter(r => r.percentage >= 50).length / adminRows.length * 100) + '%' : '–';
+  $('adminEmpty').classList.toggle('hidden', rows.length > 0);
+  $('adminRows').innerHTML = rows.map((r, i) => { const p = +r.percentage || 0;
+    return `<tr class="border-t">
+      <td class="px-4 py-3 muted font-mono">${i + 1}</td><td class="px-4 py-3 font-semibold font-mono">${esc(idOf(r))}</td><td class="px-4 py-3">${GEN_LABEL[genOf(r)]}</td>
+      <td class="px-4 py-3 muted whitespace-nowrap">${esc(r.ts.toLocaleString())}</td><td class="px-4 py-3">${esc(r.scopeLabel || r.scope)}</td>
+      <td class="px-4 py-3">${esc(diffLabel(r.difficulty))}</td><td class="px-4 py-3 text-right font-mono">${esc(r.score)}/${esc(r.total)}</td>
+      <td class="px-4 py-3 text-right font-mono" style="color:${p >= 75 ? 'var(--acc)' : p >= 50 ? 'var(--amber)' : 'var(--rose)'}">${p}%</td></tr>`; }).join('');
+}
+$('adminSearch').addEventListener('input', renderAdmin);
+$('exportCsv').onclick = () => {
+  const cell = (v) => { let s = String(v ?? ''); if (/^[=+\-@]/.test(s)) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; };
+  const lines = [['Student ID','Gender','Date','Lecture','Difficulty','Score','Total','Percentage','Duration (s)'].map(cell).join(',')]
+    .concat(adminRows.map(r => [idOf(r), genOf(r), r.ts.toISOString(), r.scopeLabel || r.scope, diffLabel(r.difficulty), r.score, r.total, r.percentage, r.durationSec].map(cell).join(',')));
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' }));
+  a.download = `instrumental_results_${new Date().toISOString().slice(0, 10)}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('adminLogout').onclick = async () => {
+  if (typeof adminUnsub === 'function') adminUnsub(); adminUnsub = null; adminRows = []; adminUnlocked = false; $('adminRows').innerHTML = '';
+  if (FB_ENABLED && auth) { try { await auth.signOut(); } catch {} }
+  showView('setup'); renderSetup();
+};
+
+/* boot */
+applyTheme();
+renderSetup();
+flushPending();
+</script>
+<!-- ================= INLO — the little floating λ assistant ================= -->
+<style>
+  section[id^="view-"]:not(.hidden-view) { animation: vIn .55s cubic-bezier(.2,.8,.2,1); }
+  @keyframes vIn { from { opacity: 0; transform: translateY(14px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+
+  #inlo { position: fixed; left: 0; top: 0; z-index: 45; width: var(--isz, 86px); --isz: 86px; transform-origin: 0 0; will-change: transform;
+          touch-action: none; user-select: none; -webkit-user-select: none; transition: opacity .5s ease;
+          --iglow: color-mix(in srgb, var(--acc) 55%, transparent); }
+  body.inlo-stage #inlo { z-index: 75; }
+  #inlo.away { opacity: 0; pointer-events: none; }
+  #inlo .i-tilt { transform-origin: 50% 60%; }
+  #inlo .i-float { animation: iBob 3.4s cubic-bezier(.45,0,.55,1) infinite; }
+  #inlo.sleeping .i-float { animation-duration: 6s; }
+  #inlo .i-flip { transition: transform .45s cubic-bezier(.4,0,.2,1); }
+  #inlo.left .i-flip { transform: scaleX(-1); }
+  #inlo svg { width: 100%; height: auto; display: block; overflow: visible; cursor: grab; filter: drop-shadow(0 0 7px var(--iglow)); }
+  #inlo .ink { fill: none; stroke: var(--text); stroke-width: 4.6; stroke-linecap: round; stroke-linejoin: round; transition: stroke .5s; }
+  #inlo .thin { stroke-width: 3.3; }
+  #inlo .dk { fill: none; stroke: #17171b; stroke-width: 2.6; stroke-linecap: round; }
+  #inlo .eye-w { fill: #fff; stroke: var(--text); stroke-width: 3.2; transition: stroke .5s, opacity .22s; }
+  #inlo .eyes { transform-box: fill-box; transform-origin: center; transition: transform .09s ease-out; }
+  #inlo.blink .eyes { transform: scaleY(.1); }
+  /* faces: everything cross-fades */
+  #inlo .fx { transition: opacity .22s ease; }
+  #inlo .hap, #inlo .clo, #inlo .xx, #inlo .brow, #inlo .m-h, #inlo .m-s, #inlo .m-o, #inlo .cheek { opacity: 0; }
+  #inlo.mood-happy .eye-w, #inlo.mood-happy .p, #inlo.mood-happy .hl, #inlo.mood-happy .m-n,
+  #inlo.mood-sleep .eye-w, #inlo.mood-sleep .p, #inlo.mood-sleep .hl,
+  #inlo.mood-sad .m-n, #inlo.mood-dizzy .p, #inlo.mood-dizzy .hl, #inlo.mood-dizzy .m-n, #inlo.mood-wow .m-n { opacity: 0; }
+  #inlo.mood-happy .hap, #inlo.mood-happy .m-h, #inlo.mood-sleep .clo, #inlo.mood-sad .brow, #inlo.mood-sad .m-s,
+  #inlo.mood-dizzy .xx, #inlo.mood-dizzy .m-o, #inlo.mood-wow .m-o { opacity: 1; }
+  body[data-theme="girl"] #inlo .cheek { opacity: .75; }
+  #inlo .armL { transform-box: view-box; transform-origin: 38px 98px; animation: iArmL 2.6s ease-in-out infinite; transition: transform .5s; }
+  #inlo .armR { transform-box: view-box; transform-origin: 88px 96px; animation: iArmR 2.9s ease-in-out infinite; transition: transform .5s; }
+  #inlo .wave .armR { animation: iWave .34s ease-in-out 8 alternate; }
+  #inlo .cheer .armL { animation: iCheerL .3s ease-in-out 8 alternate; }
+  #inlo .cheer .armR { animation: iCheerR .3s ease-in-out 8 alternate; }
+  #inlo.mood-sleep .armL { animation: none; transform: rotate(-35deg); }
+  #inlo.mood-sleep .armR { animation: none; transform: rotate(35deg); }
+  #inlo .i-act.jump  { animation: iJump .7s cubic-bezier(.3,0,.3,1); }
+  #inlo .i-act.spin  { animation: iSpin .9s cubic-bezier(.55,0,.25,1); }
+  #inlo .i-act.shake { animation: iShake .55s ease; }
+  #inlo .i-act.dance { animation: iDance .9s ease-in-out 3; }
+  #inlo .i-zz { position: absolute; top: -6px; right: -4px; opacity: 0; transition: opacity .5s; font: 700 15px 'Quicksand', 'Inter', sans-serif; color: var(--acc); pointer-events: none; }
+  #inlo.sleeping .i-zz { opacity: 1; }
+  #inlo .i-zz span { display: inline-block; animation: iZz 2.4s ease-in-out infinite; opacity: 0; }
+  #inlo .i-zz span:nth-child(2) { animation-delay: .8s; font-size: 18px; } #inlo .i-zz span:nth-child(3) { animation-delay: 1.6s; font-size: 22px; }
+
+  /* speech bubble — springy fade/scale in & out */
+  #inlo .i-bub { position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 2; width: max-content; max-width: min(270px, calc(100vw - 20px));
+                 direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; font-size: 14.5px; line-height: 1.7; color: var(--text);
+                 background: var(--panel); border: 1.5px solid var(--acc); border-radius: 18px; padding: 10px 14px;
+                 box-shadow: 0 14px 34px rgba(0,0,0,.28); transform-origin: bottom left;
+                 opacity: 0; visibility: hidden; transform: translateY(8px) scale(.9); filter: blur(4px);
+                 transition: opacity .26s ease, transform .42s cubic-bezier(.2,1.25,.35,1), filter .26s ease, visibility 0s linear .42s; }
+  #inlo .i-bub.r { transform-origin: bottom right; }
+  #inlo .i-bub.below { bottom: auto; top: calc(100% + 6px); transform-origin: top left; } #inlo .i-bub.below.r { transform-origin: top right; }
+  #inlo .i-bub.on { opacity: 1; visibility: visible; transform: none; filter: none; transition-delay: 0s; }
+  #inlo .i-txt { animation: iTxt .35s ease; }
+  #inlo .i-bs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  #inlo .i-b { padding: 3px 11px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--panel2); color: var(--text); font-size: 13px; font-weight: 700; font-family: 'Cairo', sans-serif; transition: border-color .2s, transform .2s; }
+  #inlo .i-b:hover { border-color: var(--acc); transform: translateY(-1px); }
+  #inlo .i-sm { font-size: 12px; color: var(--muted); }
+  #inlo .i-en { direction: ltr; text-align: left; display: block; font-family: 'Inter', sans-serif; font-size: 13.5px; }
+  .i-dust { position: fixed; z-index: 74; pointer-events: none; color: var(--acc); font-size: 11px; animation: iDust 1.2s ease-out forwards; }
+  #qOptions .opt { transition: opacity .35s ease, filter .35s ease; }
+  #qOptions .opt.gone { opacity: .28; filter: blur(.4px); text-decoration: line-through; }
+
+  /* Arabic help panels inside the question card (smooth height reveal) */
+  .ia-wrap { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .5s cubic-bezier(.2,.8,.2,1), opacity .4s ease, margin .5s; margin: 0; }
+  .ia-wrap.open { grid-template-rows: 1fr; opacity: 1; margin: 0 0 18px; }
+  .ia-wrap.ex.open { margin: 14px 0 0; }
+  .ia-wrap > div { overflow: hidden; }
+  .ia-box { direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; line-height: 1.85; border-radius: 14px; padding: 12px 16px;
+            background: var(--accSoft, rgba(127,127,127,.08)); border: 1.5px dashed var(--acc); }
+  .ia-h { font-weight: 800; font-size: 13px; color: var(--acc); margin-bottom: 4px; }
+  .ia-q { font-weight: 700; font-size: 16px; }
+  .ia-o { font-size: 14.5px; margin-top: 2px; }
+  .ia-o b { font-family: 'JetBrains Mono', monospace; color: var(--acc); margin-left: 6px; }
+
+  /* welcome stage */
+  #inloStage { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 24px 16px; overflow-y: auto;
+               background: radial-gradient(900px 520px at 50% 18%, color-mix(in srgb, var(--acc) 16%, transparent), transparent 70%), var(--bg);
+               transition: opacity .8s cubic-bezier(.4,0,.2,1), backdrop-filter .8s; }
+  #inloStage.out { opacity: 0; pointer-events: none; }
+  #inloStage .st-in { width: min(780px, 100%); text-align: center; direction: rtl; font-family: 'Cairo', sans-serif; }
+  #inloStage .st-spot { width: var(--spot, 180px); height: calc(var(--spot, 180px) * 1.25); margin: 0 auto 8px; }
+  #inloStage .st-l1 { font-size: clamp(24px, 4.6vw, 38px); font-weight: 800; line-height: 1.45; min-height: 1.45em; }
+  #inloStage .st-l2 { font-size: clamp(17px, 3.4vw, 23px); font-weight: 600; color: var(--muted); margin-top: 8px; min-height: 1.6em; }
+  #inloStage .st-l1 .hl, #inloStage .st-l2 .hl { color: var(--acc); }
+  #inloStage .w { display: inline-block; opacity: 0; transform: translateY(10px); filter: blur(7px); animation: wIn .7s cubic-bezier(.2,.8,.2,1) forwards; white-space: pre; }
+  @keyframes wIn { to { opacity: 1; transform: none; filter: none; } }
+  #inloStage .st-ctl { margin-top: 26px; display: grid; gap: 14px; justify-items: center; opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
+  #inloStage .st-ctl.on { opacity: 1; transform: none; }
+  #inloStage .st-in.leave > * { transition: opacity .4s ease, transform .5s ease, filter .4s ease; opacity: 0; transform: translateY(-16px); filter: blur(6px); }
+  #inloStage .st-in.leave .st-spot { opacity: 1; transform: none; filter: none; }
+  #inloStage input { width: min(320px, 100%); padding: 11px 16px; font-size: 17px; text-align: center; }
+  #inloStage .st-lab { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+  #inloStage .st-g { display: flex; gap: 10px; justify-content: center; }
+  #inloStage .st-go { padding: 12px 34px; border-radius: 999px; font-size: 18px; font-weight: 800; background: var(--acc); color: var(--accInk); box-shadow: 0 10px 30px color-mix(in srgb, var(--acc) 35%, transparent); transition: transform .25s cubic-bezier(.2,1.3,.4,1), box-shadow .25s; }
+  #inloStage .st-go:hover { transform: translateY(-2px) scale(1.03); }
+  #inloStage .st-skip { position: fixed; bottom: 16px; left: 16px; font: 600 13px 'Inter', sans-serif; color: var(--muted); opacity: .8; }
+  #inloStage .st-star { position: absolute; color: var(--acc); pointer-events: none; animation: tw 3.5s ease-in-out infinite; }
+  @keyframes tw { 0%,100% { opacity: .08; transform: scale(.8); } 50% { opacity: .5; transform: scale(1.15); } }
+
+  @keyframes iBob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-9px) rotate(2deg); } }
+  @keyframes iArmL { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-10deg); } }
+  @keyframes iArmR { 0%,100% { transform: rotate(0); } 50% { transform: rotate(10deg); } }
+  @keyframes iWave { from { transform: rotate(-14deg); } to { transform: rotate(24deg); } }
+  @keyframes iCheerL { from { transform: rotate(10deg); } to { transform: rotate(-26deg); } }
+  @keyframes iCheerR { from { transform: rotate(-10deg); } to { transform: rotate(26deg); } }
+  @keyframes iJump { 0%,100% { transform: none; } 35% { transform: translateY(-26px) scale(1.04, 1.06); } 70% { transform: translateY(2px) scale(1.05, .93); } 85% { transform: translateY(0) scale(.98, 1.02); } }
+  @keyframes iSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+  @keyframes iShake { 0%,100% { transform: none; } 20% { transform: translateX(-7px) rotate(-6deg); } 40% { transform: translateX(7px) rotate(6deg); } 60% { transform: translateX(-5px) rotate(-3deg); } 80% { transform: translateX(4px); } }
+  @keyframes iDance { 0%,100% { transform: none; } 25% { transform: rotate(-14deg) translateY(-10px); } 75% { transform: rotate(14deg) translateY(-10px); } }
+  @keyframes iZz { 0% { opacity: 0; transform: translate(0,0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(10px,-18px); } }
+  @keyframes iTxt { from { opacity: 0; filter: blur(3px); transform: translateY(3px); } to { opacity: 1; filter: none; transform: none; } }
+  @keyframes iDust { from { opacity: .9; transform: translate(0,0) scale(1); } to { opacity: 0; transform: translate(var(--dx), 20px) scale(.3); } }
+  @media (prefers-reduced-motion: reduce) { #inlo .i-float, #inloStage .st-star { animation: none; } }
+</style>
+
+<div id="inloStage" role="dialog" aria-label="Welcome">
+  <div class="st-in">
+    <div class="st-spot" id="stSpot"></div>
+    <div class="st-l1" id="stL1"></div>
+    <div class="st-l2" id="stL2"></div>
+    <div class="st-ctl" id="stCtl"></div>
+  </div>
+  <button class="st-skip" id="stSkip" type="button">Skip →</button>
+</div>
+
+<div id="inlo" class="away" aria-label="Inlo — study helper">
+  <div id="inloBub" class="i-bub"></div>
+  <div class="i-tilt"><div class="i-float"><div class="i-act"><div class="i-flip">
+    <svg viewBox="0 0 120 150" role="button" aria-label="Inlo">
+      <g class="armL"><path class="ink thin" d="M38 98 L19 73 M19 73 L10 74 M19 73 L16 63 M19 73 L26 66"/></g>
+      <g class="armR"><path class="ink thin" d="M88 96 L105 68 M105 68 L102 58 M105 68 L114 72 M105 68 L111 61"/></g>
+      <path class="ink" d="M51 70 C47 56 58 44 66 52 C71 58 73 74 77 94 C81 114 84 127 92 128 C98 128 100 121 99 116"/>
+      <path class="ink" d="M74 90 L51 132"/>
+      <ellipse class="fx cheek" cx="43" cy="77" rx="5" ry="3" fill="#f4a3c0"/>
+      <path class="fx ink thin m-n" d="M47 79 Q53 86 60 80"/>
+      <path class="fx ink thin m-h" d="M46 78 Q53 90 61 78 Z" style="fill:#17171b"/>
+      <path class="fx ink thin m-s" d="M47 85 Q53 78 60 84"/>
+      <ellipse class="fx ink thin m-o" cx="53" cy="81" rx="3.4" ry="4.4"/>
+      <path class="fx ink thin brow" d="M37 10 L54 4 M85 10 L68 4"/>
+      <g class="eyes">
+        <circle class="fx eye-w" cx="48" cy="24" r="12.5"/><circle class="fx eye-w" cx="74" cy="24" r="12.5"/>
+        <g class="fx p"><circle cx="48" cy="25" r="4.3" fill="#17171b"/><circle cx="49.4" cy="23.6" r="1.3" fill="#fff"/></g>
+        <g class="fx p"><circle cx="74" cy="25" r="4.3" fill="#17171b"/><circle cx="75.4" cy="23.6" r="1.3" fill="#fff"/></g>
+        <path class="fx dk hl" d="M52 15.5 Q55.5 16.5 56.5 20 M78 15.5 Q81.5 16.5 82.5 20" style="stroke-width:1.8"/>
+        <path class="fx ink hap" d="M39 28 Q48 15 57 28 M65 28 Q74 15 83 28"/>
+        <path class="fx ink clo" d="M38 23 Q48 31 58 23 M64 23 Q74 31 84 23"/>
+        <path class="fx dk xx" d="M43 19 L53 29 M53 19 L43 29 M69 19 L79 29 M79 19 L69 29"/>
+      </g>
+    </svg>
+  </div></div></div></div>
+  <div class="i-zz"><span>z</span><span>z</span><span>Z</span></div>
+</div>
+
+<script>
+(function () {
+  const IN = $('inlo'), BUB = $('inloBub'), ACT = IN.querySelector('.i-act'), TILT = IN.querySelector('.i-tilt'), SVG = IN.querySelector('svg'), PUP = IN.querySelectorAll('.p');
+  const STAGE = $('inloStage');
+  const K = 'instr_inlo_';
+  const INLO_COURSE = 'Instrumentation';
+  const INLO_EXTRA = [
+    () => 'المذاكرة زي Beer-Lambert: كل ما التركيز يزيد، الـ absorbance يزيد 📈😂',
+    () => 'ليه الـ NMR دايمًا هادي؟ عشان عنده shielding 🛡️😂',
+    () => 'أنا λ يعني wavelength… والـ UV من 190 لـ 400 nm، حافظها عشانك 😎',
+    () => 'أنا والـ DNA زي بعض… الاتنين بنجري ناحية الـ anode 🏃‍♂️⚡',
+    () => 'الـ ELISA لما تشوف الإجابة الصح بتلوّن… وأنا كمان بنوّر 🌈'
+  ];
+  const E = { x: -300, y: 300, s: 1, tilt: 0, tiltT: 0, flight: null, drag: null };       // motion engine state
+  const st = { w: 86, h: 108, busy: false, stage: false, sleep: false, parked: 0, nextRoam: 0, hints: 3,
+               clicks: [], lastAct: Date.now(), lastPtr: 0, px: innerWidth / 2, py: innerHeight / 2, look: null, qShown: 0,
+               idleNag: false, setupNag: false, breakNag: false, examStart: 0, lastChat: Date.now(), moodT: null, actT: null, bubT: null, pup: [[0,0],[0,0]] };
+  const ls = (k, v) => { try { if (v === undefined) return localStorage.getItem(K + k); localStorage.setItem(K + k, v); } catch { return null; } };
+  const now = () => Date.now();
+  const nm = () => setup.name;
+  const view = () => ['setup', 'dua', 'exam', 'result', 'admin'].find(v => !$('view-' + v).classList.contains('hidden-view')) || 'setup';
+  const inExam = () => view() === 'exam' && typeof exam !== 'undefined' && exam && exam.qs;
+  const inExamQ = () => inExam() && !exam.done;
+  const curQ = () => inExam() ? exam.qs[exam.i] : null;
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+  /* ---------- texts ---------- */
+  const RIGHT = [() => 'إيوه كده! 😍', () => 'الله ينوّر ✨', () => '😎👌', () => G('عاش يا وحش 🔥', 'عاش يا بطلة 🌸'), () => 'كده في الجون 🎯', () => 'تبارك الله 🤍'];
+  const JOKES = [
+    () => 'أنا شكلي λ… بس متخافش، مش هسألك عن الـ wavelength 😂',
+    () => 'بيقولوا المذاكرة ليلة الامتحان مبتنفعش… أنا عايش على كده من ساعة ما اتعملت 😅',
+    () => 'الدكتور: "السؤال ده سهل جدًا"<br>الطلبة: 😶😶😶',
+    () => 'أنا مش بنام… أنا بعمل background processing 😴',
+    () => G('ذاكر 10 دقايق كمان وأنا أرقصلك 🕺', 'ذاكري 10 دقايق كمان وأنا أرقصلك 💃'),
+    () => 'عارف ليه أنا عمري ما بقع؟ عشان أنا طاير أصلًا 🧚😂',
+    () => 'سألوا طالب: البنك فيه كام سؤال؟ قال: كتير.<br>قالوله: وحليت كام؟ قال: كتير برضه 😂'
+  ].concat(INLO_EXTRA);
+  const ENC = [
+    () => 'كل سؤال بتحله دلوقتي = سؤال مش هيخضّك في الامتحان 💪',
+    () => 'قليلٌ دائم خيرٌ من كثيرٍ منقطع 🤍',
+    () => G('إنت أشطر مما إنت فاكر ✨', 'إنتي أشطر مما إنتي فاكرة ✨'),
+    () => 'وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ 🤍',
+    () => 'خطوة خطوة… والبنك هيخلص 📘',
+    () => G('ربنا يفتحها عليك 🤲', 'ربنا يفتحها عليكي 🤲')
+  ];
+  const DROP = [() => 'وديتني فين؟ 😂', () => 'هنا حلو… هقعد شوية 😌', () => 'براحة! أنا خفيف بس 😅'];
+  const CHAT = [() => 'أنا هنا لو احتجتني 👀', () => G('ذاكرت النهارده؟ 📚', 'ذاكرتي النهارده؟ 📚'), () => 'جرّب المحاكاة… زي الامتحان بالظبط 🎓', () => 'صلِّ على النبي ﷺ 🤍'];
+
+  /* ---------- motion engine (rAF, curved flights, banking tilt, spring drag) ---------- */
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  function size() { st.w = innerWidth < 640 ? 60 : 86; st.h = st.w * 1.25; IN.style.setProperty('--isz', st.w + 'px'); }
+  function render() { IN.style.transform = `translate3d(${E.x.toFixed(2)}px, ${E.y.toFixed(2)}px, 0) scale(${E.s.toFixed(4)})`; TILT.style.transform = `rotate(${E.tilt.toFixed(2)}deg)`; }
+  function flyTo(tx, ty, o = {}) {
+    return new Promise(res => {
+      if (E.flight) E.flight.res();
+      const x0 = E.x, y0 = E.y, s0 = E.s, s1 = o.s ?? E.s, d = Math.hypot(tx - x0, ty - y0);
+      const dur = o.dur ?? Math.max(900, Math.min(2300, 700 + d * 1.5));
+      const arc = o.arc ?? Math.min(170, 30 + d * .22);
+      const mx = (x0 + tx) / 2, my = (y0 + ty) / 2, nx = -(ty - y0) / (d || 1), ny = (tx - x0) / (d || 1);
+      const sg = ny < 0 ? 1 : -1;                                   // bow the path upward
+      const cx = mx + nx * arc * sg, cy = my + ny * arc * sg;
+      if (Math.abs(tx - x0) > 8) IN.classList.toggle('left', tx < x0);
+      if (!st.busy) hide();
+      E.flight = { t0: performance.now(), dur, x0, y0, cx, cy, tx, ty, s0, s1, lastDust: 0, res: () => { E.flight = null; res(); } };
+    });
+  }
+  function step(ts) {
+    const f = E.flight;
+    if (f) {
+      const u = Math.min(1, (ts - f.t0) / f.dur), e = ease(u), a = 1 - e;
+      const nx = a * a * f.x0 + 2 * a * e * f.cx + e * e * f.tx, ny = a * a * f.y0 + 2 * a * e * f.cy + e * e * f.ty;
+      E.tiltT = Math.max(-16, Math.min(16, (nx - E.x) * 1.6)) * (IN.classList.contains('left') ? 1 : 1);
+      E.x = nx; E.y = ny; E.s = f.s0 + (f.s1 - f.s0) * e;
+      if (ts - f.lastDust > 65 && u > .04 && u < .96) { f.lastDust = ts; dust(); }
+      if (u >= 1) { E.tiltT = 0; f.res(); fitBubble(); }
+    } else if (E.drag) {
+      const ox = E.x; E.x += (E.drag.tx - E.x) * .32; E.y += (E.drag.ty - E.y) * .32;
+      E.tiltT = Math.max(-18, Math.min(18, (E.x - ox) * 1.2));
+    } else if (st.stage && !st.leaving) {                     // stay glued to the stage spot while the layout shifts
+      const r = spotRect(); E.x += (r.left - E.x) * .16; E.y += (r.top - E.y) * .16; E.tiltT = 0;
+    } else E.tiltT = 0;
+    E.tilt += (E.tiltT - E.tilt) * .1;
+    render(); gaze();
+    requestAnimationFrame(step);
+  }
+  function home() { size(); return { x: 8, y: innerHeight - st.h - 12 }; }
+  function target() {
+    size();
+    const v = $('view-' + view()), c = v && v.firstElementChild;
+    const r = (c || document.querySelector('main')).getBoundingClientRect();
+    const L = r.left, R = innerWidth - r.right, need = st.w + 24, top = 80, bot = innerHeight - st.h - 16;
+    const sides = []; if (L >= need) sides.push('L'); if (R >= need) sides.push('R');
+    if (!sides.length) return home();
+    const s = pickOne(sides);
+    const minX = s === 'L' ? 10 : r.right + 12, maxX = s === 'L' ? L - st.w - 12 : innerWidth - st.w - 10;
+    return { x: minX + Math.random() * Math.max(0, maxX - minX), y: top + Math.random() * Math.max(0, bot - top) };
+  }
+  const roam = () => { const t = target(); return flyTo(t.x, t.y, { s: 1 }); };
+  function dust() {
+    if (IN.classList.contains('away')) return;
+    const r = SVG.getBoundingClientRect(), d = document.createElement('span');
+    d.className = 'i-dust'; d.textContent = pickOne(['✦', '✧', '⋆', '·', '✦']);
+    d.style.left = (r.left + r.width * (.3 + Math.random() * .4)) + 'px'; d.style.top = (r.top + r.height * .78) + 'px';
+    d.style.setProperty('--dx', (Math.random() * 22 - 11) + 'px'); d.style.fontSize = (7 + Math.random() * 9) * Math.max(1, E.s * .7) + 'px';
+    document.body.appendChild(d); setTimeout(() => d.remove(), 1300);
+  }
+
+  /* ---------- speech bubble ---------- */
+  function say(html, opt = {}) {
+    if (st.stage) return;
+    clearTimeout(st.bubT);
+    BUB.innerHTML = `<div class="i-txt">${html}</div>`
+      + (opt.btns ? `<div class="i-bs">${opt.btns.map((b, i) => `<button type="button" class="i-b" data-i="${i}">${b.t}</button>`).join('')}</div>` : '');
+    st.busy = !!opt.btns;
+    BUB.querySelectorAll('.i-b').forEach(el => el.onclick = (e) => { e.stopPropagation(); const b = opt.btns[+el.dataset.i]; hide(); if (b.fn) b.fn(); });
+    fitBubble(); BUB.classList.add('on');
+    if (!st.busy) st.bubT = setTimeout(hide, opt.ms || Math.min(7500, 2600 + html.replace(/<[^>]+>/g, '').length * 45));
+  }
+  function hide() { BUB.classList.remove('on'); st.busy = false; }
+  function fitBubble() {
+    const wasOn = BUB.classList.contains('on'); if (!wasOn && !BUB.innerHTML) return;
+    BUB.style.left = '0px';
+    const bw = BUB.offsetWidth, bh = BUB.offsetHeight, right = E.x + st.w / 2 > innerWidth / 2;
+    const want = right ? E.x + st.w - bw : E.x, abs = Math.max(8, Math.min(innerWidth - bw - 8, want));
+    BUB.style.left = (abs - E.x) + 'px';
+    BUB.classList.toggle('r', right); BUB.classList.toggle('below', E.y < bh + 70);
+  }
+
+  /* ---------- face ---------- */
+  function mood(m, ms) {
+    IN.classList.remove('mood-happy', 'mood-sad', 'mood-sleep', 'mood-dizzy', 'mood-wow');
+    if (m && m !== 'normal') IN.classList.add('mood-' + m);
+    clearTimeout(st.moodT);
+    if (ms) st.moodT = setTimeout(() => mood(st.sleep ? 'sleep' : 'normal'), ms);
+  }
+  function act(c, ms) {
+    ACT.classList.remove('jump', 'spin', 'shake', 'dance', 'wave', 'cheer'); void ACT.offsetWidth; ACT.classList.add(c);
+    clearTimeout(st.actT); st.actT = setTimeout(() => ACT.classList.remove(c), ms || 2800);
+  }
+  function lookAt(el, ms = 1500) { if (el) st.look = { el, until: now() + ms }; }
+  function gaze() {
+    let tx = st.px, ty = st.py;
+    if (st.look && st.look.until > now() && st.look.el.isConnected) { const r = st.look.el.getBoundingClientRect(); tx = r.left + r.width / 2; ty = r.top + r.height / 2; }
+    const r = SVG.getBoundingClientRect(), k = r.width / 120, flip = IN.classList.contains('left'), sad = IN.classList.contains('mood-sad');
+    [48, 74].forEach((vx, i) => {
+      const cx = r.left + (flip ? 120 - vx : vx) * k, cy = r.top + 24 * k;
+      let dx = tx - cx, dy = ty - cy; const d = Math.hypot(dx, dy) || 1, f = Math.min(1, d / 140) * 4.6;
+      dx = dx / d * f; dy = dy / d * f; if (flip) dx = -dx; if (sad) { dx *= .3; dy = 3.5; }
+      const p = st.pup[i]; p[0] += (dx - p[0]) * .18; p[1] += (dy - p[1]) * .18;
+      PUP[i].setAttribute('transform', `translate(${p[0].toFixed(2)} ${p[1].toFixed(2)})`);
+    });
+  }
+  function blinkLoop() {
+    if (!IN.classList.contains('mood-sleep')) { IN.classList.add('blink'); setTimeout(() => IN.classList.remove('blink'), 140);
+      if (Math.random() < .2) setTimeout(() => { IN.classList.add('blink'); setTimeout(() => IN.classList.remove('blink'), 120); }, 300); }
+    setTimeout(blinkLoop, 2200 + Math.random() * 4000);
+  }
+
+  /* ---------- Arabic help (translation + explanation) ---------- */
+  function panel(kind) {
+    const id = kind === 'tr' ? 'inloTr' : 'inloEx';
+    let w = $(id);
+    if (!w) {
+      w = document.createElement('div'); w.id = id; w.className = 'ia-wrap' + (kind === 'ex' ? ' ex' : '');
+      w.innerHTML = '<div><div class="ia-box"></div></div>';
+      if (kind === 'tr') $('qText').after(w); else $('feedback').after(w);
+    }
+    return w;
+  }
+  function openPanel(w, html) { w.querySelector('.ia-box').innerHTML = html; requestAnimationFrame(() => requestAnimationFrame(() => w.classList.add('open'))); setTimeout(() => { lookAt(w, 2000); const r = w.getBoundingClientRect(); if (r.bottom > innerHeight || r.top < 70) w.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 450); }
+  function translateQ() {
+    const q = curQ(); if (!q || !q.qa) return say('مش لاقي ترجمة للسؤال ده 😅');
+    let h = `<div class="ia-h">🌐 ترجمة إنلو</div><div class="ia-q">${esc(q.qa)}</div>`;
+    if (q.type === 'mcq' && q.oaS) h += q.oaS.map((o, i) => `<div class="ia-o"><b>${String.fromCharCode(65 + i)}</b>${esc(o)}</div>`).join('');
+    openPanel(panel('tr'), h); act('jump'); mood('happy', 1500);
+    say('ترجمتلك السؤال 👇 المصطلحات سبتها إنجليزي زي ما هتيجي في الامتحان', { ms: 4200 });
+  }
+  function explainQ(force) {
+    const q = curQ(); if (!q || !q.ea) return say('مش لاقي شرح للسؤال ده 😅');
+    const answered = exam.done || (q.type === 'essay' && !$('modelBox').classList.contains('hidden'));
+    if (!answered && !force) {
+      if (setup.mode === 'sim') return say(`في المحاكاة الشرح بييجي بعد ما ${G('تجاوب', 'تجاوبي')} 😉`);
+      return say('الشرح هيقولك الإجابة 👀 أكمّل؟', { btns: [{ t: 'أيوه اشرح 📖', fn: () => explainQ(true) }, { t: G('هحاول الأول 💪', 'هحاول الأول 💪'), fn: () => say(G('جدع! ركّز وإنت تجيبها 🔥', 'جدعة! ركّزي وإنتي تجيبيها 🌸')) }] });
+    }
+    let h = `<div class="ia-h">📖 شرح إنلو</div>`;
+    if (q.type === 'mcq') h += `<div class="ia-o" style="margin-bottom:4px"><b>✓</b>${esc(q.oaS ? q.oaS[q.ans] : '')}</div>`;
+    h += `<div class="ia-o">${esc(q.ea)}</div>`;
+    const w = panel(exam.done ? 'ex' : 'tr');
+    if (!exam.done && $('inloTr') && $('inloTr').classList.contains('open') && w.id === 'inloTr') { w.classList.remove('open'); setTimeout(() => openPanel(w, h), 350); }
+    else openPanel(w, h);
+    act('wave'); say('بص الشرح 👇', { ms: 2500 });
+  }
+
+  /* ---------- menu & actions ---------- */
+  function menu() {
+    const v = view(), btns = [], q = curQ();
+    if (v === 'exam' && q) {
+      btns.push({ t: '🌐 ترجم السؤال', fn: translateQ });
+      btns.push({ t: '📖 اشرحلي بالعربي', fn: () => explainQ() });
+      if (!exam.done && q.type === 'mcq') btns.push({ t: `🪄 شيل اختيار غلط (${st.hints})`, fn: hint });
+      if (!exam.done && q.type === 'essay') btns.push({ t: `🧠 لمّحلي (${st.hints})`, fn: essayHint });
+    }
+    btns.push({ t: '💡 معلومة', fn: fact });
+    if (v === 'setup') btns.push({ t: '🎲 اختارلي محاضرة', fn: pickLecture });
+    btns.push({ t: '😂 نكتة', fn: () => { act('jump'); say(pickOne(JOKES)(), { ms: 6500 }); } });
+    if (v !== 'exam') btns.push({ t: '💪 شجّعني', fn: () => { act('cheer'); mood('happy', 2000); say(pickOne(ENC)()); } });
+    btns.push({ t: '😴 نام شوية', fn: sleep });
+    btns.push({ t: '✖', fn: () => {} });
+    say(pickOne([`${G('أؤمرني', 'أؤمريني')}${YA(nm())} 😄`, 'أنا هنا ✨ أساعدك إزاي؟', `${G('عايز', 'عايزة')} إيه؟ 👀`]), { btns });
+  }
+  function hint() {
+    if (!inExamQ()) return;
+    if (setup.mode === 'sim') { mood('wow', 1500); return say('في المحاكاة مفيش مساعدة 😉 زي الامتحان الحقيقي بالظبط'); }
+    if (st.hints <= 0) return say(`خلصت المساعدات بتاعة الامتحان ده 😅 ${G('ركّز', 'ركّزي')} وإن شاء الله ${G('هتجيبها', 'هتجيبيها')}`);
+    const q = curQ(), opts = [...document.querySelectorAll('#qOptions .opt')];
+    const cand = opts.map((_, i) => i).filter(i => i !== q.ans && !opts[i].classList.contains('gone'));
+    if (cand.length <= 1) return say('كفاية كده 😅 فاضل اختيارين بس… القرار ليك');
+    const i = pickOne(cand);
+    if (exam.selected === i) { exam.selected = null; opts[i].classList.remove('sel'); $('submitBtn').disabled = true; }
+    opts[i].classList.add('gone'); opts[i].disabled = true; st.hints--;
+    act('spin'); mood('happy', 1200); lookAt(opts[i]);
+    say(`🪄 شلت (${String.fromCharCode(65 + i)})! فاضلك ${st.hints} ${st.hints === 1 ? 'مساعدة' : 'مساعدات'}`);
+  }
+  function essayHint() {
+    if (!inExamQ()) return;
+    if (setup.mode === 'sim') return say('في المحاكاة مفيش مساعدة 😉 زي الامتحان الحقيقي بالظبط');
+    if (st.hints <= 0) return say('خلصت المساعدات 😅 اكتب اللي فاكره وشوف الإجابة النموذجية');
+    const q = curQ(), w = String(q.ans[0] || '').trim(); st.hints--; act('wave');
+    say(`🧠 أول نقطة بتبدأ بـ <b dir="ltr">"${esc(w.slice(0, 3))}…"</b>${q.ans.length > 1 ? `<br><span class="i-sm">والإجابة فيها ${q.ans.length} نقط</span>` : ''}`, { ms: 6000 });
+  }
+  function fact() {
+    const cur = curQ() ? curQ().id : null, sc = view() === 'exam' ? setup.scope : 'ALL';
+    const pool = QUESTIONS.filter(q => q.type === 'mcq' && q.e && q.id !== cur && (sc === 'ALL' || q.scope === sc));
+    const f = pickOne(pool.length ? pool : QUESTIONS.filter(q => q.e));
+    act('jump'); say(`💡 معلومة:<span class="i-en">${esc(f.e)}</span>`, { ms: 9000 });
+  }
+  function pickLecture() {
+    const tiles = [...document.querySelectorAll('#scopeTiles [data-scope]:not([disabled])')].filter(t => t.dataset.scope !== 'ALL');
+    if (!tiles.length) return;
+    const key = pickOne(tiles).dataset.scope; document.querySelector(`#scopeTiles [data-scope="${key}"]`).click();
+    const s = scopeOf(key); act('spin');
+    setTimeout(() => { const el = document.querySelector(`#scopeTiles [data-scope="${key}"]`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); lookAt(el, 2500); } }, 60);
+    say(`🎲 اخترتلك <b>${esc(s.label)}</b> — <span dir="ltr">${esc(s.sub)}</span><br>يلا بينا! 🚀`);
+  }
+  function sleep() {
+    say('هنام شوية… لو احتجتني دوس عليّا 😴', { ms: 2000 });
+    setTimeout(() => { st.sleep = true; ls('sleep', '1'); hide(); mood('sleep'); IN.classList.add('sleeping'); const h = home(); flyTo(h.x, h.y, { s: 1 }); }, 1500);
+  }
+  function wake(msg) {
+    st.sleep = false; ls('sleep', '0'); IN.classList.remove('sleeping'); mood('happy', 1500); act('jump');
+    say(msg || `صحيت! ${G('وحشتني', 'وحشتيني')} 😃`); st.nextRoam = now() + 3500;
+  }
+  function onClick() {
+    st.clicks = st.clicks.filter(t => now() - t < 2500); st.clicks.push(now());
+    if (st.clicks.length >= 6) { st.clicks = []; hide(); mood('dizzy', 2600); act('spin'); return setTimeout(() => say('دوّختني 😵‍💫 براحة عليّا!'), 550); }
+    if (st.sleep) return wake();
+    if (BUB.classList.contains('on') && st.busy) return hide();
+    menu();
+  }
+
+  /* ---------- drag / click ---------- */
+  SVG.addEventListener('pointerdown', (e) => { if (st.stage) return; st.down = { x: e.clientX, y: e.clientY, ox: E.x, oy: E.y, moved: false }; try { SVG.setPointerCapture(e.pointerId); } catch {} });
+  SVG.addEventListener('pointermove', (e) => {
+    if (!st.down) return;
+    const dx = e.clientX - st.down.x, dy = e.clientY - st.down.y;
+    if (!st.down.moved && Math.hypot(dx, dy) < 7) return;
+    if (!st.down.moved) { st.down.moved = true; if (E.flight) E.flight.res(); hide(); SVG.style.cursor = 'grabbing'; }
+    E.drag = { tx: Math.max(0, Math.min(innerWidth - st.w, st.down.ox + dx)), ty: Math.max(56, Math.min(innerHeight - st.h, st.down.oy + dy)) };
+  });
+  const endDrag = (cancel) => {
+    const d = st.down; st.down = null; SVG.style.cursor = ''; if (!d) return;
+    if (d.moved) { setTimeout(() => { E.drag = null; fitBubble(); }, 260); st.parked = now() + 30000; if (!st.sleep && !cancel) { mood('wow', 1200); setTimeout(() => say(pickOne(DROP)(), { ms: 2200 }), 280); } }
+    else if (!cancel) onClick();
+  };
+  SVG.addEventListener('pointerup', () => endDrag(false));
+  SVG.addEventListener('pointercancel', () => endDrag(true));
+
+  /* ---------- page events ---------- */
+  ['pointermove', 'pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(ev => addEventListener(ev, (e) => {
+    st.lastAct = now();
+    if (e.clientX !== undefined && (ev === 'pointermove' || ev === 'pointerdown')) { st.px = e.clientX; st.py = e.clientY; st.lastPtr = now(); }
+  }, { passive: true }));
+  let nameT = null, greeted = setup.name;
+  $('studentName').addEventListener('input', () => {
+    clearTimeout(nameT);
+    nameT = setTimeout(() => {
+      const n = nm(); if (!n || n === greeted || st.stage || st.busy || st.sleep) return;
+      greeted = n; act('wave'); mood('happy', 1500); say(`أهلاً يا ${esc(n)} 👋 اسم ${pickOne(['حلو', 'جميل', 'يجنن'])}!`);
+    }, 1300);
+  });
+  document.addEventListener('click', (e) => {
+    const g = e.target.closest('#genderChips .gchip'); if (!g || st.stage || st.sleep) return;
+    setTimeout(() => {
+      if (setup.gender === 'girl') { act('cheer'); say('أهلاً يا بطلة 🌸'); }
+      else if (setup.gender === 'boy') { act('cheer'); say('أهلاً يا بطل ⚡'); }
+      else say('تمام 👌');
+    }, 60);
+  });
+  addEventListener('resize', () => { size(); if (st.stage) return placeOnSpot(); if (st.sleep) { const h = home(); flyTo(h.x, h.y, { dur: 500 }); } else st.nextRoam = 0; });
+
+  window.inloEvt = function (type, d) {
+    if (type === 'view') {
+      IN.classList.toggle('away', d === 'dua' || d === 'admin' || st.hidden);   // du'a & verses stay alone on screen
+      if (d === 'dua' || d === 'admin') hide();
+      st.nextRoam = now() + 650; st.setupNag = false;
+      if (st.sleep) setTimeout(() => { const h = home(); flyTo(h.x, h.y); }, 300);
+      return;
+    }
+    if (type === 'start') {
+      st.hints = 3; st.breakNag = false; st.examStart = now();
+      if (!st.sleep) { act('wave'); if (!ls('tip')) { setTimeout(() => { if (st.busy) return; ls('tip', '1'); say(`لو ${G('احتجت', 'احتجتي')} مساعدة ${G('دوس', 'دوسي')} عليّا 🪄<br>أترجملك السؤال، أشرحهولك بالعربي، أو أشيل اختيار غلط`, { ms: 7000 }); }, 1800); } }
+      return;
+    }
+    if (type === 'question') {
+      st.qShown = now(); st.idleNag = false; if (st.busy) hide();
+      ['inloTr', 'inloEx'].forEach(id => { const w = $(id); if (w) w.remove(); });
+      lookAt($('qText'), 1200); return;
+    }
+    if (type === 'right') {
+      if (st.sleep) { if (d === 10) wake('صحّيتني بالـ streak ده 😳🔥'); return; }
+      mood('happy', 1500); act(d >= 5 && d % 5 === 0 ? 'spin' : 'jump', 950);
+      if (Math.random() < .2) say(pickOne(RIGHT)(), { ms: 1800 });
+      return;
+    }
+    if (type === 'wrong') {
+      if (st.sleep) return;
+      mood('sad', 2000); act('shake', 650); lookAt(document.querySelector('#qOptions .opt.ok'), 1800);
+      const q = curQ();
+      if (q && q.ea) setTimeout(() => say(pickOne(['معلش 🤍', '😬 كانت قريبة!', 'عادي، بتحصل 💪']) + ` ${G('تحب', 'تحبي')} أشرحهالك بالعربي؟`,
+        { btns: [{ t: '📖 اشرحلي', fn: () => explainQ(true) }, { t: 'لا شكرًا', fn: () => {} }] }), 500);
+      return;
+    }
+    if (type === 'finish') {
+      if (st.sleep) return;
+      const { pct, wrong, retry } = d;
+      setTimeout(() => {
+        if (pct >= 85) { mood('happy', 4000); act('dance', 2900); say(`${pct}%؟! 😍 ${G('عاش يا وحش', 'عاش يا بطلة')}، تبارك الله`); }
+        else if (wrong > 0 && !retry) { act('wave'); say(pct < 50 ? 'متزعلش 🤍 نعيد اللي غلطنا فيه سوا؟' : 'حلو! نراجع الغلط ونبقى فُل؟ 💪',
+            { btns: [{ t: '↻ يلا بينا', fn: () => $('retryWrongBtn').click() }, { t: 'بعدين', fn: () => {} }] }); }
+        else { act('cheer'); say(pickOne(ENC)()); }
+      }, 900);
+    }
+  };
+
+  /* ---------- background loop: roaming, idle nudges ---------- */
+  setInterval(() => {
+    const t = now(), v = view();
+    if (st.stage || IN.classList.contains('away') || st.down || E.drag) return;
+    if (!st.busy && !st.sleep && !E.flight && t > st.nextRoam && t > st.parked) { roam(); st.nextRoam = t + 9000 + Math.random() * 7000; }
+    if (st.lastPtr && t - st.lastPtr > 5000 && Math.random() < .3) { st.px = Math.random() * innerWidth; st.py = Math.random() * innerHeight; }
+    if (st.sleep || st.busy) return;
+    if (inExamQ() && !st.idleNag && t - Math.max(st.lastAct, st.qShown) > 45000) {
+      st.idleNag = true; mood('wow', 1600); act('wave');
+      say(`${G('سرحت', 'سرحتي')} فين${YA(nm())}؟ 👀`, { btns: [{ t: '🌐 ترجملي السؤال', fn: translateQ }, { t: 'لا أنا معاك', fn: () => {} }] });
+    } else if (v === 'exam' && st.examStart && !st.breakNag && t - st.examStart > 25 * 60000) {
+      st.breakNag = true; say(`بقالك 25 دقيقة بتحل 👏 ${G('خد', 'خدي')} نفس ${G('واشرب', 'واشربي')} بُق مية 💧`, { ms: 6500 });
+    } else if (v === 'setup' && !st.setupNag && t - st.lastAct > 60000) {
+      st.setupNag = true; act('wave');
+      say(`${G('محتار', 'محتارة')} تبدأ بإيه؟ 🤔`, { btns: [{ t: '🎲 اختارلي', fn: pickLecture }, { t: '🎓 المحاكاة', fn: () => { document.querySelector('[data-mode="sim"]')?.click(); say('اخترتلك المحاكاة 🎓 دوس Start لما تبقى جاهز'); } }, { t: '✖', fn: () => {} }] });
+    } else if (v === 'setup' && t - st.lastChat > 45000 && Math.random() < .12) {
+      st.lastChat = t; say(pickOne(CHAT)());
+    }
+  }, 1000);
+
+  /* ---------- welcome stage ---------- */
+  function words(el, html, delay = 0) {
+    // split on spaces but keep tags (e.g. <span class="hl">…</span>) intact; each word blurs/fades in
+    const tmp = document.createElement('div'); tmp.innerHTML = html; el.innerHTML = ''; let i = 0;
+    const add = (node, parent) => {
+      if (node.nodeType === 3) node.textContent.split(/(\s+)/).forEach(tok => {
+        if (!tok) return; if (/^\s+$/.test(tok)) { parent.appendChild(document.createTextNode(' ')); return; }
+        const s = document.createElement('span'); s.className = 'w'; s.textContent = tok; s.style.animationDelay = (delay + i++ * 85) + 'ms'; parent.appendChild(s);
+      });
+      else { const c = node.cloneNode(false); parent.appendChild(c); [...node.childNodes].forEach(n => add(n, c)); }
+    };
+    [...tmp.childNodes].forEach(n => add(n, el));
+    return delay + i * 85 + 700;
+  }
+  function spotRect() { return $('stSpot').getBoundingClientRect(); }
+  function stageScale() { size(); const want = Math.min(190, innerWidth * .42, innerHeight * .22); STAGE.style.setProperty('--spot', want + 'px'); return want / st.w; }
+  function placeOnSpot() { const s = stageScale(), r = spotRect(); if (!E.flight) { E.x = r.left; E.y = r.top; E.s = s; } }
+  function stars() {
+    for (let i = 0; i < 26; i++) { const s = document.createElement('span'); s.className = 'st-star'; s.textContent = pickOne(['✦', '✧', '⋆', '·']);
+      s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 100 + '%'; s.style.fontSize = (8 + Math.random() * 14) + 'px';
+      s.style.animationDelay = (-Math.random() * 3.5) + 's'; s.style.animationDuration = (2.5 + Math.random() * 3) + 's'; STAGE.appendChild(s); }
+  }
+  async function runStage() {
+    st.stage = true; document.body.classList.add('inlo-stage'); stars();
+    const returning = !!ls('met'), n = nm();
+    const s = stageScale(); await wait(60);
+    E.s = s; E.x = -st.w * s - 40; E.y = innerHeight * .5; IN.classList.remove('away'); IN.classList.remove('left');
+    const r = spotRect();
+    await wait(250);
+    await flyTo(r.left, r.top, { s, dur: 1700, arc: 120 });
+    if (!st.stage) return;
+    act('wave', 3000); mood('happy', 1600);
+    const course = `<span class="hl" dir="ltr">${esc(INLO_COURSE)}</span>`;
+    const l1 = returning && n ? `أهلاً ${G('بيك', 'بيكي')} تاني يا ${esc(n)} في مراجعة الـ ${course} 👋`
+                               : `أهلاً ${G('بيك', 'بيكي')} في مراجعة الـ ${course} 👋`;
+    let t = words($('stL1'), l1, 0);
+    await wait(t + 250); if (!st.stage) return;
+    act('cheer', 2600);
+    t = words($('stL2'), `أنا <span class="hl" dir="ltr">Inlo</span>، ${G('مساعدك', 'مساعدتك')} في المراجعة دي ✨`.replace('مساعدتك', 'مساعدِك'), 0);
+    await wait(t); if (!st.stage) return;
+    const ctl = $('stCtl');
+    ctl.innerHTML = (returning ? '' : `
+      <div><div class="st-lab">${'وإنت؟ اسمك إيه؟'} <span style="opacity:.7">(اختياري)</span></div>
+        <input id="stName" maxlength="30" placeholder="اكتب اسمك…" dir="auto" value="${esc(n || '')}"></div>
+      <div><div class="st-lab">ولد ولا بنت؟ <span style="opacity:.7">(اختياري)</span></div>
+        <div class="st-g"><button type="button" class="gchip ar" data-sg="boy">👦 ولد</button><button type="button" class="gchip ar" data-sg="girl">👧 بنت</button></div></div>
+      <div class="i-sm" style="font-size:12.5px;color:var(--muted)">🔒 اسمك بيفضل على جهازك بس، محدش بيشوفه</div>`)
+      + `<button type="button" class="st-go" id="stGo">يلا نبدأ 🚀</button>`;
+    ctl.querySelectorAll('[data-sg]').forEach(b => b.classList.toggle('on', b.dataset.sg === setup.gender));
+    ctl.onclick = (e) => {
+      const b = e.target.closest('[data-sg]'); if (!b) return;
+      const g = setup.gender === b.dataset.sg ? '' : b.dataset.sg;
+      document.querySelector(`#genderChips [data-gender="${g}"]`)?.click();
+      ctl.querySelectorAll('[data-sg]').forEach(x => x.classList.toggle('on', x.dataset.sg === setup.gender));
+      act('cheer', 1600); mood('happy', 1400);
+      const l = $('stL1'); l.innerHTML = `أهلاً ${G('بيك', 'بيكي')} في مراجعة الـ ${course} 👋`;
+      $('stL2').innerHTML = `أنا <span class="hl" dir="ltr">Inlo</span>، مساعدِك في المراجعة دي ✨`;
+    };
+    const inp = $('stName');
+    if (inp) {
+      let tt; inp.oninput = () => { lookAt(inp, 1200); clearTimeout(tt); tt = setTimeout(() => { if (inp.value.trim()) { mood('happy', 1200); act('jump', 800); } }, 600); };
+      inp.onkeydown = (e) => { if (e.key === 'Enter') $('stGo').click(); };
+    }
+    $('stGo').onclick = () => endStage(true);
+    requestAnimationFrame(() => ctl.classList.add('on'));
+    if (inp && !matchMedia('(pointer: coarse)').matches) setTimeout(() => inp.focus({ preventScroll: true }), 500);
+  }
+  async function endStage(fromBtn) {
+    if (!st.stage || st.leaving) return; st.leaving = true;
+    const inp = $('stName');
+    if (inp) { const v = inp.value.trim().replace(/\s+/g, ' ').slice(0, 30); if (v !== nm()) { $('studentName').value = v; greeted = v; $('studentName').dispatchEvent(new Event('input')); } }
+    const first = !ls('met'); ls('met', '1');
+    STAGE.querySelector('.st-in').classList.add('leave');
+    await wait(280);
+    STAGE.classList.add('out');
+    const sec = $('view-setup'); sec.style.animation = 'none'; void sec.offsetWidth; sec.style.animation = '';
+    size(); const t = target();
+    act('spin', 900);
+    await flyTo(t.x, t.y, { s: 1, dur: 1500, arc: 140 });
+    st.stage = false; st.leaving = false; document.body.classList.remove('inlo-stage'); STAGE.remove();
+    st.nextRoam = now() + 9000;
+    if (st.sleep) { mood('sleep'); IN.classList.add('sleeping'); const h = home(); return flyTo(h.x, h.y); }
+    act('wave');
+    if (first) say(`يلا بينا${YA(nm())}! ${G('اختار', 'اختاري')} المحاضرة وأنا معاك 🪄<br><span class="i-sm">لو ${G('احتجتني', 'احتجتيني')} ${G('دوس', 'دوسي')} عليّا في أي وقت</span>`, { ms: 6500 });
+    else say(pickOne([`بالتوفيق${YA(nm())} 🤍`, 'يلا نذاكر ✨', `${G('جاهز', 'جاهزة')}؟ 🚀`]), { ms: 2600 });
+    lateNight();
+  }
+  $('stSkip').onclick = () => { if (st.stage) endStage(false); };
+  function lateNight() {
+    const h = new Date().getHours();
+    let seen = false; try { seen = !!sessionStorage.getItem(K + 'late'); sessionStorage.setItem(K + 'late', '1'); } catch {}
+    if (h < 5 && !seen) setTimeout(() => { if (!st.busy && !st.sleep) { mood('sleep', 2500); say(`الساعة ${h === 0 ? 12 : h} بالليل 🌙 ${G('متسهرش', 'متسهريش')} كتير، النوم بيثبّت المذاكرة 😴`, { ms: 6500 }); } }, 9000);
+  }
+
+  /* ---------- boot ---------- */
+  size(); requestAnimationFrame(step); setTimeout(blinkLoop, 1500);
+  st.sleep = ls('sleep') === '1' && !!ls('met');
+  const skipStage = location.hash === '#admin' || !$('view-setup') || $('view-setup').classList.contains('hidden-view');
+  if (skipStage) { STAGE.remove(); const t = target(); E.x = t.x; E.y = t.y; IN.classList.remove('away'); if (st.sleep) { mood('sleep'); IN.classList.add('sleeping'); } }
+  else runStage();
+})();
+</script>
+</body>
+</html>
